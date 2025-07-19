@@ -8,11 +8,13 @@ int main(int argc, char **argv) {
     using namespace std::string_literals;
     auto hello = "Hello"s;
     auto world = "world";
-    // READ: `decltype` 表达式 <https://zh.cppreference.com/w/cpp/language/decltype>
+    std::cout << "Type of world: " << typeid(decltype(world)).name() << std::endl;
+	std::cout << "Size of world: " << sizeof(world) << std::endl;
+	// READ: `decltype` 表达式 <https://zh.cppreference.com/w/cpp/language/decltype>
     // READ: `std::is_same_v` 元编程判别 <https://zh.cppreference.com/w/cpp/types/is_same>
-    ASSERT((std::is_same_v<decltype(hello), ?>), "Fill in the missing type.");
-    ASSERT((std::is_same_v<decltype(world), ?>), "Fill in the missing type.");
+    ASSERT((std::is_same_v<decltype(hello),std::string>), "Fill in the missing type.");
+	ASSERT((std::is_same_v<decltype(world),const char*>), "Fill in the missing type.");
     // TODO: 将 `?` 替换为正确的字符串
-    ASSERT(hello + ", " + world + '!' == "?", "Fill in the missing string.");
+    ASSERT(hello + ", " + world + '!' == "Hello, world!", "Fill in the missing string.");
     return 0;
 }

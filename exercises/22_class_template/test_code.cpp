@@ -1,4 +1,4 @@
-﻿#include "../exercise.h"
+#include "../exercise.h"
 #include <cstring>
 
 // READ: 类模板 <https://zh.cppreference.com/w/cpp/language/class_template>
