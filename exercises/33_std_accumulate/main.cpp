@@ -11,7 +11,8 @@ int main(int argc, char **argv) {
     //       - 形状为 shape；
     //       - 连续存储；
     //       的张量占用的字节数
-    // int size =
+    std::vector<int> vec(shape, shape + sizeof(shape) / sizeof(shape[0]));
+    int size = sizeof(DataType) * std::accumulate(vec.begin(), vec.end(), 1, [](int x, int y) {return x * y;});
     ASSERT(size == 602112, "4x1x3x224x224 = 602112");
     return 0;
 }
