@@ -1,10 +1,10 @@
 #include "../exercise.h"
-
-// READ: 运算符 <https://zh.cppreference.com/w/cpp/language/expressions#.E8.BF.90.E7.AE.97.E7.AC.A6>
+#include <iostream>  // 确保包含iostream头文件
 
 int main(int argc, char **argv) {
-    // TODO: 补全变量定义并打印加法运算
-    // x ?
+    // 补全变量定义
+    int x = 5;  // 示例值，可以是任何整数
+    
     std::cout << x << " + " << x << " = " << x + x << std::endl;
     return 0;
 }
