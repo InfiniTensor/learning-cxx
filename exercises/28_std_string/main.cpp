@@ -10,9 +10,11 @@ int main(int argc, char **argv) {
     auto world = "world";
     // READ: `decltype` 表达式 <https://zh.cppreference.com/w/cpp/language/decltype>
     // READ: `std::is_same_v` 元编程判别 <https://zh.cppreference.com/w/cpp/types/is_same>
-    ASSERT((std::is_same_v<decltype(hello), ?>), "Fill in the missing type.");
-    ASSERT((std::is_same_v<decltype(world), ?>), "Fill in the missing type.");
+    // decltype(world) 的实际类型并非 const char[6]，而是 const char*（指针类型）。
+    // 这是因为 auto 对字符串字面量的类型推导规则 导致的：
+    ASSERT((std::is_same_v<decltype(hello), std::string>), "Fill in the missing type.");
+    ASSERT((std::is_same_v<decltype(world), const char *>), "Fill in the missing type.");
     // TODO: 将 `?` 替换为正确的字符串
-    ASSERT(hello + ", " + world + '!' == "?", "Fill in the missing string.");
+    ASSERT(hello + ", " + world + '!' == "Hello, world!", "Fill in the missing string.");
     return 0;
 }
