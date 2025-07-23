@@ -5,6 +5,15 @@ bool is_fibonacci(int *ptr, int len, int stride) {
     ASSERT(len >= 3, "`len` should be at least 3");
     // TODO: 编写代码判断从 ptr 开始，每 stride 个元素取 1 个元素，组成长度为 n 的数列是否满足
     // arr[i + 2] = arr[i] + arr[i + 1]
+    for (int i = 2; i < len; i++) {
+        int* index1 = ptr + stride * (i - 2);
+        int* index2 = ptr + stride * (i - 1);
+        int* index3 = ptr + stride * i;
+        if (*index3 != *index1 + *index2) {
+            return false;
+        }
+
+    }
     return true;
 }
 
