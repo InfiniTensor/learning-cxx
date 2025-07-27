@@ -1,14 +1,18 @@
 ﻿#include "../exercise.h"
 #include <cstring>
 // READ: 类模板 <https://zh.cppreference.com/w/cpp/language/class_template>
-
+enum class TensorType {
+    Float,
+    Double,
+};
 template<class T>
 struct Tensor4D {
     unsigned int shape[4];
     T *data;
 
     Tensor4D(unsigned int const shape_[4], T const *data_) {
-        unsigned int size = 1;
+        std::memcpy(shape, shape_, 4*sizeof(unsigned int));
+        unsigned int size = shape[0] * shape[1] * shape[2] * shape[3];
         // TODO: 填入正确的 shape 并计算 size
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
@@ -28,6 +32,34 @@ struct Tensor4D {
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
         // TODO: 实现单向广播的加法
+        unsigned int selfShape[4];
+        std::memcpy(selfShape, shape, 4 * sizeof(unsigned int));
+        unsigned int otherShape[4];
+        std::memcpy(otherShape, others.shape, 4 * sizeof(unsigned int));
+        for (int i = 0; i < 4; ++i) {
+            if (selfShape[i] != otherShape[i] && otherShape[i] != 1) {
+                throw std::runtime_error("Incompatible shapes for addition.");
+            }
+        }
+        unsigned int size = shape[0] * shape[1] * shape[2] * shape[3];
+        for (unsigned int i = 0; i < size; ++i) {
+            unsigned int dim0 = i / (shape[1] * shape[2] * shape[3]);
+            unsigned int rem0 = i % (shape[1] * shape[2] * shape[3]);
+            unsigned int dim1 = rem0 / (shape[2] * shape[3]);
+            unsigned int rem1 = rem0 % (shape[2] * shape[3]);
+            unsigned int dim2 = rem1 / shape[3];
+            unsigned int dim3 = rem1 % shape[3];
+
+            unsigned int oDim0 = (otherShape[0] == 1) ? 0 : dim0;
+            unsigned int oDim1 = (otherShape[1] == 1) ? 0 : dim1;
+            unsigned int oDim2 = (otherShape[2] == 1) ? 0 : dim2;
+            unsigned int oDim3 = (otherShape[3] == 1) ? 0 : dim3;
+
+            unsigned int oIndex = oDim0 * (otherShape[1] * otherShape[2] * otherShape[3]) +
+                                  oDim1 * (otherShape[2] * otherShape[3]) +
+                                  oDim2 * otherShape[3] + oDim3;
+            data[i] += others.data[oIndex];
+        }
         return *this;
     }
 };
