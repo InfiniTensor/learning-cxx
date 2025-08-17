@@ -10,6 +10,10 @@ struct Tensor4D {
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
+        for (int i = 0; i < 4; ++i) {
+            shape[i] = shape_[i];
+            size *= shape_[i];
+        }
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -28,6 +32,45 @@ struct Tensor4D {
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
         // TODO: 实现单向广播的加法
+        // 1) 形状检查，并计算 this 总元素数
+        unsigned int total = 1;
+        for (int i = 0; i < 4; ++i) {
+            ASSERT(others.shape[i] == 1 || others.shape[i] == shape[i], "Broadcast shape mismatch");
+            total *= shape[i];
+        }
+
+        // 2) 计算 this 的标准行主序 stride
+        unsigned int self_stride[4];
+        self_stride[3] = 1;
+        for (int i = 2; i >= 0; --i) {
+            self_stride[i] = self_stride[i + 1] * shape[i + 1];
+        }
+
+        // 3) 先计算 others 的“标准 stride”（忽略广播），再逐维应用“为 1 则置 0”的规则
+        unsigned int other_stride_base[4];
+        other_stride_base[3] = 1;
+        for (int i = 2; i >= 0; --i) {
+            other_stride_base[i] = other_stride_base[i + 1] * others.shape[i + 1];
+        }
+        unsigned int other_stride[4];
+        for (int i = 0; i < 4; ++i) {
+            other_stride[i] = (others.shape[i] == 1) ? 0u : other_stride_base[i];
+        }
+
+        // 4) 逐元素：把 this 的线性下标解码为 4D 坐标，再映射到 others 的线性下标
+        for (unsigned int lin = 0; lin < total; ++lin) {
+            unsigned int idx = lin;
+            unsigned int coord[4];
+            for (int d = 0; d < 4; ++d) {
+                coord[d] = idx / self_stride[d];
+                idx %= self_stride[d];
+            }
+            unsigned int oidx = 0;
+            for (int d = 0; d < 4; ++d) {
+                oidx += coord[d] * other_stride[d];
+            }
+            data[lin] += others.data[oidx];
+        }
         return *this;
     }
 };

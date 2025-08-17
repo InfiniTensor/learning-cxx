@@ -12,6 +12,8 @@ int main(int argc, char **argv) {
     //       - 连续存储；
     //       的张量占用的字节数
     // int size =
+    // 使用 std::accumulate 计算张量元素个数（1×3×224×224），再乘以 sizeof(DataType)
+    int size = std::accumulate(std::begin(shape), std::end(shape), sizeof(DataType), std::multiplies<int>());
     ASSERT(size == 602112, "4x1x3x224x224 = 602112");
     return 0;
 }
