@@ -1,16 +1,14 @@
 #include "../exercise.h"
 
-// READ: 静态字段 <https://zh.cppreference.com/w/cpp/language/static>
-// READ: 虚析构函数 <https://zh.cppreference.com/w/cpp/language/destructor>
-
 struct A {
-    // TODO: 正确初始化静态字段
-    static int num_a = 0;
+    // 静态成员在类内声明，类外初始化
+    static int num_a;
 
     A() {
         ++num_a;
     }
-    ~A() {
+    // 声明虚析构函数，确保派生类对象能正确析构
+    virtual ~A() {
         --num_a;
     }
 
@@ -18,14 +16,15 @@ struct A {
         return 'A';
     }
 };
+
 struct B final : public A {
-    // TODO: 正确初始化静态字段
-    static int num_b = 0;
+    // 静态成员在类内声明，类外初始化
+    static int num_b;
 
     B() {
         ++num_b;
     }
-    ~B() {
+    ~B() override {
         --num_b;
     }
 
@@ -34,30 +33,36 @@ struct B final : public A {
     }
 };
 
+// 静态成员在类外初始化
+int A::num_a = 0;
+int B::num_b = 0;
+
 int main(int argc, char **argv) {
     auto a = new A;
     auto b = new B;
-    ASSERT(A::num_a == ?, "Fill in the correct value for A::num_a");
-    ASSERT(B::num_b == ?, "Fill in the correct value for B::num_b");
-    ASSERT(a->name() == '?', "Fill in the correct value for a->name()");
-    ASSERT(b->name() == '?', "Fill in the correct value for b->name()");
+    // new A: num_a=1; new B: 先构造A(num_a=2)，再构造B(num_b=1)
+    ASSERT(A::num_a == 2, "Fill in the correct value for A::num_a");
+    ASSERT(B::num_b == 1, "Fill in the correct value for B::num_b");
+    ASSERT(a->name() == 'A', "Fill in the correct value for a->name()");
+    ASSERT(b->name() == 'B', "Fill in the correct value for b->name()");
 
     delete a;
     delete b;
     ASSERT(A::num_a == 0, "Every A was destroyed");
     ASSERT(B::num_b == 0, "Every B was destroyed");
 
-    A *ab = new B;// 派生类指针可以随意转换为基类指针
-    ASSERT(A::num_a == ?, "Fill in the correct value for A::num_a");
-    ASSERT(B::num_b == ?, "Fill in the correct value for B::num_b");
-    ASSERT(ab->name() == '?', "Fill in the correct value for ab->name()");
+    A *ab = new B;  // 派生类对象赋值给基类指针
+    // new B: 先构造A(num_a=1)，再构造B(num_b=1)
+    ASSERT(A::num_a == 1, "Fill in the correct value for A::num_a");
+    ASSERT(B::num_b == 1, "Fill in the correct value for B::num_b");
+    ASSERT(ab->name() == 'B', "Fill in the correct value for ab->name()");  // 多态调用
 
-    // TODO: 基类指针无法随意转换为派生类指针，补全正确的转换语句
-    B &bb = *ab;
-    ASSERT(bb.name() == '?', "Fill in the correct value for bb->name()");
+    // 基类指针转换为派生类引用，使用static_cast（已知实际类型是B）
+    B &bb = *static_cast<B*>(ab);
+    ASSERT(bb.name() == 'B', "Fill in the correct value for bb->name()");
 
-    // TODO: ---- 以下代码不要修改，通过改正类定义解决编译问题 ----
-    delete ab;// 通过指针可以删除指向的对象，即使是多态对象
+    // 由于A有虚析构函数，delete会先调用B的析构函数，再调用A的析构函数
+    delete ab;
     ASSERT(A::num_a == 0, "Every A was destroyed");
     ASSERT(B::num_b == 0, "Every B was destroyed");
 
