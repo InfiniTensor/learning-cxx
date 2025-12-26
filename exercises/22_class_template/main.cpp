@@ -1,6 +1,5 @@
 ﻿#include "../exercise.h"
 #include <cstring>
-// READ: 类模板 <https://zh.cppreference.com/w/cpp/language/class_template>
 
 template<class T>
 struct Tensor4D {
@@ -9,7 +8,14 @@ struct Tensor4D {
 
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
-        // TODO: 填入正确的 shape 并计算 size
+        // 复制输入形状到成员变量
+        for (int i = 0; i < 4; ++i) {
+            shape[i] = shape_[i];
+        }
+        // 计算总元素数量（4个维度的乘积）
+        for (int i = 0; i < 4; ++i) {
+            size *= shape[i];
+        }
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -17,17 +23,59 @@ struct Tensor4D {
         delete[] data;
     }
 
-    // 为了保持简单，禁止复制和移动
+    // 禁止复制和移动
     Tensor4D(Tensor4D const &) = delete;
     Tensor4D(Tensor4D &&) noexcept = delete;
 
-    // 这个加法需要支持“单向广播”。
-    // 具体来说，`others` 可以具有与 `this` 不同的形状，形状不同的维度长度必须为 1。
-    // `others` 长度为 1 但 `this` 长度不为 1 的维度将发生广播计算。
-    // 例如，`this` 形状为 `[1, 2, 3, 4]`，`others` 形状为 `[1, 2, 1, 4]`，
-    // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
+    // 补全单向广播加法逻辑
     Tensor4D &operator+=(Tensor4D const &others) {
-        // TODO: 实现单向广播的加法
+        // 1. 检查广播合法性
+        for (int i = 0; i < 4; ++i) {
+            if (others.shape[i] != shape[i] && others.shape[i] != 1) {
+                ASSERT(false, "Broadcast not supported: invalid dimension");
+            }
+        }
+
+        // 2. 计算 this 的维度步长（4D索引转线性索引）
+        unsigned int this_stride[4];
+        this_stride[3] = 1;  // 最内层维度（第3维）步长为1
+        this_stride[2] = shape[3] * this_stride[3];  // 第2维步长 = 第3维大小 × 第3维步长
+        this_stride[1] = shape[2] * this_stride[2];  // 第1维步长 = 第2维大小 × 第2维步长
+        this_stride[0] = shape[1] * this_stride[1];  // 第0维步长 = 第1维大小 × 第1维步长
+
+        // 3. 计算 others 的维度步长
+        unsigned int others_stride[4];
+        others_stride[3] = 1;
+        others_stride[2] = others.shape[3] * others_stride[3];
+        others_stride[1] = others.shape[2] * others_stride[2];
+        others_stride[0] = others.shape[1] * others_stride[1];
+
+        // 4. 遍历 this 的所有元素，执行广播加法
+        unsigned int total = shape[0] * shape[1] * shape[2] * shape[3];  // 总元素数
+        for (unsigned int linear_idx = 0; linear_idx < total; ++linear_idx) {
+            // 4.1 将 this 的线性索引转换为 4D 索引 (i0, i1, i2, i3)
+            unsigned int i0 = linear_idx / this_stride[0];
+            unsigned int rem0 = linear_idx % this_stride[0];  // 去除i0后的剩余偏移
+            unsigned int i1 = rem0 / this_stride[1];
+            unsigned int rem1 = rem0 % this_stride[1];  // 去除i1后的剩余偏移
+            unsigned int i2 = rem1 / this_stride[2];
+            unsigned int i3 = rem1 % this_stride[2];    // 第3维索引
+
+            // 4.2 按广播规则映射 others 的 4D 索引 (o0, o1, o2, o3)
+            // 若 others 维度为1，索引固定为0；否则与 this 索引一致
+            unsigned int o0 = (others.shape[0] == 1) ? 0 : i0;
+            unsigned int o1 = (others.shape[1] == 1) ? 0 : i1;
+            unsigned int o2 = (others.shape[2] == 1) ? 0 : i2;
+            unsigned int o3 = (others.shape[3] == 1) ? 0 : i3;
+
+            // 4.3 将 others 的 4D 索引转换为线性索引
+            unsigned int others_linear_idx = o0 * others_stride[0] + o1 * others_stride[1] +
+                                             o2 * others_stride[2] + o3 * others_stride[3];
+
+            // 4.4 执行元素级加法
+            data[linear_idx] += others.data[others_linear_idx];
+        }
+
         return *this;
     }
 };

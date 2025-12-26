@@ -1,40 +1,57 @@
 ﻿#include "../exercise.h"
 #include <cstring>
 
-// READ: 模板非类型实参 <https://zh.cppreference.com/w/cpp/language/template_parameters#%E6%A8%A1%E6%9D%BF%E9%9D%9E%E7%B1%BB%E5%9E%8B%E5%AE%9E%E5%8F%82>
-
 template<unsigned int N, class T>
 struct Tensor {
-    unsigned int shape[N];
-    T *data;
+    unsigned int shape[N];  // 存储各维度大小
+    T *data;                // 线性存储的张量数据
 
+    // 构造函数：初始化形状、分配内存并置0
     Tensor(unsigned int const shape_[N]) {
         unsigned int size = 1;
-        // TODO: 填入正确的 shape 并计算 size
+        // 复制输入形状到成员变量
+        for (unsigned int i = 0; i < N; ++i) {
+            shape[i] = shape_[i];
+            size *= shape[i];  // 计算总元素数（各维度乘积）
+        }
         data = new T[size];
-        std::memset(data, 0, size * sizeof(T));
+        std::memset(data, 0, size * sizeof(T));  // 初始化为0
     }
+    
     ~Tensor() {
-        delete[] data;
+        delete[] data;  // 释放动态内存
     }
 
-    // 为了保持简单，禁止复制和移动
+    // 禁止复制和移动，避免资源管理问题
     Tensor(Tensor const &) = delete;
     Tensor(Tensor &&) noexcept = delete;
 
+    // 重载[]运算符，支持多维索引访问
     T &operator[](unsigned int const indices[N]) {
         return data[data_index(indices)];
     }
+    
     T const &operator[](unsigned int const indices[N]) const {
         return data[data_index(indices)];
     }
 
 private:
+    // 将多维索引转换为线性索引
     unsigned int data_index(unsigned int const indices[N]) const {
         unsigned int index = 0;
-        for (unsigned int i = 0; i < N; ++i) {
-            ASSERT(indices[i] < shape[i], "Invalid index");
-            // TODO: 计算 index
+        unsigned int stride = 1;  // 步长：当前维度每个元素对应的内存偏移
+        
+        // 从最后一个维度开始计算（行优先存储）
+        for (int i = N - 1; i >= 0; --i) {
+            ASSERT(indices[i] < shape[i], "Invalid index");  // 索引越界检查
+            
+            // 累加当前维度的偏移
+            index += indices[i] * stride;
+            
+            // 计算前一个维度的步长（当前维度大小 × 当前步长）
+            if (i > 0) {
+                stride *= shape[i];
+            }
         }
         return index;
     }

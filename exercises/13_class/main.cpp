@@ -13,13 +13,15 @@ class Fibonacci {
     int cached;
 
 public:
-    // TODO: 实现构造器
-    // Fibonacci()
+    Fibonacci() : cache{0, 1}, cached(2) {}
 
-    // TODO: 实现正确的缓存优化斐波那契计算
     size_t get(int i) {
-        for (; false; ++cached) {
+        while (cached <= i) {
+            if (cached >= 16) {
+                ASSERT(false, "Exceed cache size");
+            }
             cache[cached] = cache[cached - 1] + cache[cached - 2];
+            ++cached;
         }
         return cache[i];
     }
