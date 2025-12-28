@@ -18,8 +18,10 @@ int main(int argc, char **argv) {
 
     // TODO: 观察错误信息，修改一处，使代码编译运行
     // PS: 编译运行，但是不一定能算出结果……
-    constexpr auto ANS_N = 90;
-    auto ANS = fibonacci(ANS_N);
+    // 方法1.修改修饰词，取消constexpr，使其不在编译期间完成计算
+    // 方法2.修改数字，降低计算复杂度
+    constexpr auto ANS_N = 45;
+    constexpr auto ANS = fibonacci(ANS_N);
     std::cout << "fibonacci(" << ANS_N << ") = " << ANS << std::endl;
 
     return 0;
