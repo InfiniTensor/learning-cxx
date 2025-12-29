@@ -2,6 +2,24 @@
 #include <cstring>
 // READ: 类模板 <https://zh.cppreference.com/w/cpp/language/class_template>
 
+
+unsigned int index_to_position(const unsigned int *index, const unsigned int *strides, int num_dims) {
+    unsigned int position = 0;
+    for (auto i = 0; i < num_dims; i++) {
+        position += index[i] * strides[i];
+    }
+    return position;
+}
+
+void to_index(unsigned int ordinal, const unsigned int *shape, unsigned int *out_index, int num_dims) {
+    unsigned int cur_ord = ordinal;
+    for (int i = num_dims - 1; i >= 0; i--) {
+        auto sh = shape[i];
+        out_index[i] = cur_ord % sh;
+        cur_ord /= sh;
+    }
+}
+
 template<class T>
 struct Tensor4D {
     unsigned int shape[4];
@@ -10,6 +28,10 @@ struct Tensor4D {
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
+        for (int i = 0; i < 4; i++) {
+            size *= shape_[i];
+            shape[i] = shape_[i];
+        }
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -28,6 +50,26 @@ struct Tensor4D {
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
         // TODO: 实现单向广播的加法
+        unsigned int strides[4] = {1, 1, 1, 1};
+        for (int i = 3; i > 0; i--) {
+            for (int j = 0; j < i; j++) {
+                strides[j] *= others.shape[i];
+            }
+        }
+
+        auto size = shape[0] * shape[1] * shape[2] * shape[3];
+        for (unsigned int ordinal = 0; ordinal < size; ordinal++) {
+            unsigned int idx[4];
+            to_index(ordinal, shape, idx, 4);
+            for (int i = 0; i < 4; i++) {
+                if (shape[i] != others.shape[i]) {
+                    idx[i] = 0;
+                }
+            }
+            auto pos = index_to_position(idx, strides, 4);
+            data[ordinal] += others.data[pos];
+        }
+
         return *this;
     }
 };
