@@ -1,6 +1,8 @@
 ﻿#include "../exercise.h"
 #include <cmath>
 
+// 目标是让sigmoid_dyn根据TaggedUnion里 type 字段来判断是 float 还是 double，然后调用对应的 sigmoid 函数。把 sigmoid 模板化，以便支持两种类型。
+
 enum class DataType {
     Float,
     Double,
@@ -18,13 +20,27 @@ struct TaggedUnion {
 };
 
 // TODO: 将这个函数模板化用于 sigmoid_dyn
+/*
 float sigmoid(float x) {
+    return 1 / (1 + std::exp(-x));
+}
+*/
+template <typename T>
+T sigmoid(T x) {
     return 1 / (1 + std::exp(-x));
 }
 
 TaggedUnion sigmoid_dyn(TaggedUnion x) {
     TaggedUnion ans{x.type};
     // TODO: 根据 type 调用 sigmoid
+    switch (x.type) {
+        case DataType::Float:
+            ans.f = sigmoid(x.f);
+            break;
+        case DataType::Double:
+            ans.d = sigmoid(x.d);
+            break;
+    }
     return ans;
 }
 
