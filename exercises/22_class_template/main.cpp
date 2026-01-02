@@ -1,6 +1,6 @@
-﻿#include "../exercise.h"
+#include "../exercise.h"
 #include <cstring>
-// READ: 类模板 <https://zh.cppreference.com/w/cpp/language/class_template>
+#include <algorithm>
 
 template<class T>
 struct Tensor4D {
@@ -8,26 +8,47 @@ struct Tensor4D {
     T *data;
 
     Tensor4D(unsigned int const shape_[4], T const *data_) {
-        unsigned int size = 1;
-        // TODO: 填入正确的 shape 并计算 size
+        // 拷贝 shape 并计算总元素个数
+        std::copy(shape_, shape_ + 4, shape);
+        unsigned int size = shape[0] * shape[1] * shape[2] * shape[3];
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
-    ~Tensor4D() {
-        delete[] data;
-    }
 
-    // 为了保持简单，禁止复制和移动
+    ~Tensor4D() { delete[] data; }
+
     Tensor4D(Tensor4D const &) = delete;
     Tensor4D(Tensor4D &&) noexcept = delete;
 
-    // 这个加法需要支持“单向广播”。
-    // 具体来说，`others` 可以具有与 `this` 不同的形状，形状不同的维度长度必须为 1。
-    // `others` 长度为 1 但 `this` 长度不为 1 的维度将发生广播计算。
-    // 例如，`this` 形状为 `[1, 2, 3, 4]`，`others` 形状为 `[1, 2, 1, 4]`，
-    // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
+    /* 单向广播加法：
+       others 维度长度要么与 *this 相同，要么为 1。
+       长度为 1 的维度在计算时重复其唯一元素。
+    */
     Tensor4D &operator+=(Tensor4D const &others) {
-        // TODO: 实现单向广播的加法
+        auto idx = [this](unsigned int n, unsigned int c,
+                          unsigned int h, unsigned int w) {
+            return ((n * shape[1] + c) * shape[2] + h) * shape[3] + w;
+        };
+        auto o_idx = [&others](unsigned int n, unsigned int c,
+                               unsigned int h, unsigned int w) {
+            return ((n * others.shape[1] + c) * others.shape[2] + h)
+                   * others.shape[3] + w;
+        };
+
+        for (unsigned int n = 0; n < shape[0]; ++n) {
+            unsigned int on = std::min(n, others.shape[0] - 1);
+            for (unsigned int c = 0; c < shape[1]; ++c) {
+                unsigned int oc = std::min(c, others.shape[1] - 1);
+                for (unsigned int h = 0; h < shape[2]; ++h) {
+                    unsigned int oh = std::min(h, others.shape[2] - 1);
+                    for (unsigned int w = 0; w < shape[3]; ++w) {
+                        unsigned int ow = std::min(w, others.shape[3] - 1);
+                        data[idx(n, c, h, w)] +=
+                            others.data[o_idx(on, oc, oh, ow)];
+                    }
+                }
+            }
+        }
         return *this;
     }
 };
@@ -36,16 +57,13 @@ struct Tensor4D {
 int main(int argc, char **argv) {
     {
         unsigned int shape[]{1, 2, 3, 4};
-        // clang-format off
         int data[]{
              1,  2,  3,  4,
              5,  6,  7,  8,
              9, 10, 11, 12,
-
             13, 14, 15, 16,
             17, 18, 19, 20,
             21, 22, 23, 24};
-        // clang-format on
         auto t0 = Tensor4D(shape, data);
         auto t1 = Tensor4D(shape, data);
         t0 += t1;
@@ -55,28 +73,15 @@ int main(int argc, char **argv) {
     }
     {
         unsigned int s0[]{1, 2, 3, 4};
-        // clang-format off
         float d0[]{
             1, 1, 1, 1,
             2, 2, 2, 2,
             3, 3, 3, 3,
-
             4, 4, 4, 4,
             5, 5, 5, 5,
             6, 6, 6, 6};
-        // clang-format on
         unsigned int s1[]{1, 2, 3, 1};
-        // clang-format off
-        float d1[]{
-            6,
-            5,
-            4,
-
-            3,
-            2,
-            1};
-        // clang-format on
-
+        float d1[]{6, 5, 4, 3, 2, 1};
         auto t0 = Tensor4D(s0, d0);
         auto t1 = Tensor4D(s1, d1);
         t0 += t1;
@@ -86,19 +91,15 @@ int main(int argc, char **argv) {
     }
     {
         unsigned int s0[]{1, 2, 3, 4};
-        // clang-format off
         double d0[]{
              1,  2,  3,  4,
              5,  6,  7,  8,
              9, 10, 11, 12,
-
             13, 14, 15, 16,
             17, 18, 19, 20,
             21, 22, 23, 24};
-        // clang-format on
         unsigned int s1[]{1, 1, 1, 1};
         double d1[]{1};
-
         auto t0 = Tensor4D(s0, d0);
         auto t1 = Tensor4D(s1, d1);
         t0 += t1;
