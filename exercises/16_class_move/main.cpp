@@ -1,4 +1,5 @@
 #include "../exercise.h"
+#include <utility> // 需要包含这个头文件以使用 std::exchange
 
 // READ: 左值右值（概念）<https://learn.microsoft.com/zh-cn/cpp/c-language/l-value-and-r-value-expressions?view=msvc-170>
 // READ: 左值右值（细节）<https://zh.cppreference.com/w/cpp/language/value_category>
@@ -15,25 +16,46 @@ class DynFibonacci {
 
 public:
     // TODO: 实现动态设置容量的构造器
-    DynFibonacci(int capacity): cache(new ?), cached(?) {}
+    DynFibonacci(int capacity): cache(new size_t[capacity]), cached(2) {
+        cache[0] = 0, cache[1] = 1;
+    }
 
     // TODO: 实现移动构造器
-    DynFibonacci(DynFibonacci &&) noexcept = delete;
+    DynFibonacci(DynFibonacci &&fib) noexcept
+        : cache(std::exchange(fib.cache, nullptr)), cached(std::exchange(fib.cached, 0)) {
+        // 使用 std::exchange 将 fib 的资源转移给当前对象，并将 fib 的指针置为 nullptr
+    }
 
     // TODO: 实现移动赋值
     // NOTICE: ⚠ 注意移动到自身问题 ⚠
-    DynFibonacci &operator=(DynFibonacci &&) noexcept = delete;
+    DynFibonacci &operator=(DynFibonacci &&fib) {
+        if (this != &fib) {// 检查自移动
+            // 释放当前资源
+            delete[] cache;
+
+            // 从右侧对象移动资源
+            cache = std::exchange(fib.cache, nullptr);
+            cached = std::exchange(fib.cached, 0);
+        }
+        return *this;
+    }
 
     // TODO: 实现析构器，释放缓存空间
-    ~DynFibonacci();
+    ~DynFibonacci() {
+        delete[] cache;// 使用 delete[] 释放数组
+    }
 
     // TODO: 实现正确的缓存优化斐波那契计算
     size_t operator[](int i) {
-        for (; false; ++cached) {
-            cache[cached] = cache[cached - 1] + cache[cached - 2];
+        if (i >= cached) {
+            for (int j = cached; j <= i; ++j) {
+                cache[j] = cache[j - 1] + cache[j - 2];
+            }
+            cached = i + 1;// 更新已缓存的数量
         }
         return cache[i];
     }
+
 
     // NOTICE: 不要修改这个方法
     size_t operator[](int i) const {
