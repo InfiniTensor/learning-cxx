@@ -1,4 +1,4 @@
-﻿#include "../exercise.h"
+#include "../exercise.h"
 #include <cstring>
 // READ: 类模板 <https://zh.cppreference.com/w/cpp/language/class_template>
 
@@ -7,9 +7,11 @@ struct Tensor4D {
     unsigned int shape[4];
     T *data;
 
-    Tensor4D(unsigned int const shape_[4], T const *data_) {
+    Tensor4D(unsigned int const *shape_, T const *data_) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
+        for(int i=0;i<4;i++)
+            size*=(shape[i]=shape_[i]);
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -27,8 +29,39 @@ struct Tensor4D {
     // 例如，`this` 形状为 `[1, 2, 3, 4]`，`others` 形状为 `[1, 2, 1, 4]`，
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
-        // TODO: 实现单向广播的加法
-        return *this;
+            unsigned int dim_strides[4];
+            dim_strides[3] = 1;
+            dim_strides[2] = shape[3];
+            dim_strides[1] = shape[2] * shape[3];
+            dim_strides[0] = shape[1] * shape[2] * shape[3];
+
+            unsigned int others_strides[4];
+            others_strides[3] = 1;
+            others_strides[2] = others.shape[3];
+            others_strides[1] = others.shape[2] * others.shape[3];
+            others_strides[0] = others.shape[1] * others.shape[2] * others.shape[3];
+            unsigned int total_size = shape[0] * shape[1] * shape[2] * shape[3];
+            for (unsigned int idx = 0; idx < total_size; ++idx) {
+
+                unsigned int coords[4];
+                coords[0] = idx / dim_strides[0];
+                coords[1] = (idx % dim_strides[0]) / dim_strides[1];
+                coords[2] = (idx % dim_strides[1]) / dim_strides[2];
+                coords[3] = idx % dim_strides[2];
+
+                unsigned int others_coords[4];
+                for (int i = 0; i < 4; ++i) {
+                    others_coords[i] = (others.shape[i] == 1) ? 0 : coords[i];
+                }
+                unsigned int others_idx =
+                    others_coords[0] * others_strides[0] +
+                    others_coords[1] * others_strides[1] +
+                    others_coords[2] * others_strides[2] +
+                    others_coords[3] * others_strides[3];
+                data[idx] += others.data[others_idx];
+            }
+
+            return *this;
     }
 };
 
