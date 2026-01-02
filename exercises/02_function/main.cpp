@@ -6,6 +6,8 @@
 
 // TODO: 在这里声明函数
 
+int add(int a, int b);
+
 int main(int argc, char **argv) {
     ASSERT(add(123, 456) == 123 + 456, "add(123, 456) should be 123 + 456");
 
@@ -15,5 +17,6 @@ int main(int argc, char **argv) {
 }
 
 int add(int a, int b) {
+    return a + b;
     // TODO: 补全函数定义，但不要移动代码行
 }

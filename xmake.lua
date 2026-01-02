@@ -3,6 +3,7 @@ set_encodings("utf-8")
 set_warnings("all")
 set_languages("cxx17")
 
+
 target("test")
     set_kind("static")
     add_defines(string.format("__XMAKE__=\"%s\"", os.scriptdir():gsub("\\", "/")))
