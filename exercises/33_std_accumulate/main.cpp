@@ -12,6 +12,10 @@ int main(int argc, char **argv) {
     //       - 连续存储；
     //       的张量占用的字节数
     // int size =
+    int dims = sizeof(shape) / sizeof(shape[0]);
+
+    int total_elements = std::accumulate(shape, shape + dims, 1, std::multiplies<int>());
+    int size = total_elements * sizeof(DataType);
     ASSERT(size == 602112, "4x1x3x224x224 = 602112");
     return 0;
 }
