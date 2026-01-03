@@ -1,0 +1,3 @@
+[submodule "exercises/learning-cxx"]
+	path = exercises/learning-cxx
+	url = https://github.com/Roundaboutt/learning-cxx.git

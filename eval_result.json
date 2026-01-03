@@ -1,0 +1,146 @@
+{
+  "exercises": [
+    {
+      "name": "exercise00",
+      "result": true
+    },
+    {
+      "name": "exercise01",
+      "result": true
+    },
+    {
+      "name": "exercise02",
+      "result": true
+    },
+    {
+      "name": "exercise03",
+      "result": true
+    },
+    {
+      "name": "exercise04",
+      "result": true
+    },
+    {
+      "name": "exercise05",
+      "result": true
+    },
+    {
+      "name": "exercise06",
+      "result": true
+    },
+    {
+      "name": "exercise07",
+      "result": true
+    },
+    {
+      "name": "exercise08",
+      "result": true
+    },
+    {
+      "name": "exercise09",
+      "result": true
+    },
+    {
+      "name": "exercise10",
+      "result": true
+    },
+    {
+      "name": "exercise11",
+      "result": true
+    },
+    {
+      "name": "exercise12",
+      "result": true
+    },
+    {
+      "name": "exercise13",
+      "result": true
+    },
+    {
+      "name": "exercise14",
+      "result": true
+    },
+    {
+      "name": "exercise15",
+      "result": true
+    },
+    {
+      "name": "exercise16",
+      "result": true
+    },
+    {
+      "name": "exercise17",
+      "result": true
+    },
+    {
+      "name": "exercise18",
+      "result": true
+    },
+    {
+      "name": "exercise19",
+      "result": true
+    },
+    {
+      "name": "exercise20",
+      "result": true
+    },
+    {
+      "name": "exercise21",
+      "result": true
+    },
+    {
+      "name": "exercise22",
+      "result": true
+    },
+    {
+      "name": "exercise23",
+      "result": true
+    },
+    {
+      "name": "exercise24",
+      "result": true
+    },
+    {
+      "name": "exercise25",
+      "result": true
+    },
+    {
+      "name": "exercise26",
+      "result": true
+    },
+    {
+      "name": "exercise27",
+      "result": true
+    },
+    {
+      "name": "exercise28",
+      "result": true
+    },
+    {
+      "name": "exercise29",
+      "result": true
+    },
+    {
+      "name": "exercise30",
+      "result": true
+    },
+    {
+      "name": "exercise31",
+      "result": true
+    },
+    {
+      "name": "exercise32",
+      "result": true
+    },
+    {
+      "name": "exercise33",
+      "result": true
+    }
+  ],
+  "statistics": {
+    "total_exercations": 34,
+    "total_succeeds": 34,
+    "total_failures": 0,
+    "total_time": 6
+  }
+}
