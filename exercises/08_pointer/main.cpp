@@ -3,8 +3,18 @@
 // READ: 数组向指针退化 <https://zh.cppreference.com/w/cpp/language/array#%E6%95%B0%E7%BB%84%E5%88%B0%E6%8C%87%E9%92%88%E7%9A%84%E9%80%80%E5%8C%96>
 bool is_fibonacci(int *ptr, int len, int stride) {
     ASSERT(len >= 3, "`len` should be at least 3");
-    // TODO: 编写代码判断从 ptr 开始，每 stride 个元素取 1 个元素，组成长度为 n 的数列是否满足
-    // arr[i + 2] = arr[i] + arr[i + 1]
+    // 遍历需要验证的每一组三项（从第3个元素开始，对应索引2）
+    for (int i = 2; i < len; ++i) {
+        // 计算当前组的三个元素：i-2项、i-1项、i项（按stride步长偏移）
+        int a = *(ptr + (i - 2) * stride);  // 第i-2个元素
+        int b = *(ptr + (i - 1) * stride);  // 第i-1个元素
+        int c = *(ptr + i * stride);        // 第i个元素
+        // 验证斐波那契规则：c是否等于a+b，不满足则直接返回false
+        if (c != a + b) {
+            return false;
+        }
+    }
+    // 所有组均满足规则，返回true
     return true;
 }
 
