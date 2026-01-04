@@ -12,33 +12,60 @@
 class DynFibonacci {
     size_t *cache;
     int cached;
+    int capacity;
 
 public:
     // TODO: 实现动态设置容量的构造器
-    DynFibonacci(int capacity): cache(new ?), cached(?) {}
+    DynFibonacci(int capacity): cache(new size_t[capacity]), cached(2), capacity(capacity) {
+        cache[0] = 0;
+        cache[1] = 1;
+    }
 
-    // TODO: 实现移动构造器
-    DynFibonacci(DynFibonacci &&) noexcept = delete;
+    // 实现移动构造（窃取资源）
+    DynFibonacci(DynFibonacci &&other) noexcept
+        : cache(other.cache), cached(other.cached), capacity(other.capacity) {
+        other.cache = nullptr;
+        other.cached = 0;
+        other.capacity = 0;
+    }
 
-    // TODO: 实现移动赋值
-    // NOTICE: ⚠ 注意移动到自身问题 ⚠
-    DynFibonacci &operator=(DynFibonacci &&) noexcept = delete;
+    // 实现移动赋值（处理自移动，释放旧资源，窃取新资源）
+    DynFibonacci &operator=(DynFibonacci &&other) noexcept {
+        if (this != &other) {
+            delete[] cache;
+            cache = other.cache;
+            cached = other.cached;
+            capacity = other.capacity;
+            other.cache = nullptr;
+            other.cached = 0;
+            other.capacity = 0;
+        }
+        return *this;
+    }
 
-    // TODO: 实现析构器，释放缓存空间
-    ~DynFibonacci();
+    // 实现析构器，释放缓存空间
+    ~DynFibonacci() {
+        delete[] cache;
+    }
 
     // TODO: 实现正确的缓存优化斐波那契计算
     size_t operator[](int i) {
-        for (; false; ++cached) {
-            cache[cached] = cache[cached - 1] + cache[cached - 2];
+        ASSERT(i >= 0 && i < capacity, "index out of capacity");
+        if (i >= cached) {
+            for (int j = cached; j <= i; ++j) {
+                cache[j] = cache[j - 1] + cache[j - 2];
+            }
+            cached = i + 1;
         }
         return cache[i];
     }
 
     // NOTICE: 不要修改这个方法
     size_t operator[](int i) const {
-        ASSERT(i <= cached, "i out of range");
-        return cache[i];
+        if (i < cached) {
+            return cache[i];
+        }
+        ASSERT(false, "i out of range");
     }
 
     // NOTICE: 不要修改这个方法
