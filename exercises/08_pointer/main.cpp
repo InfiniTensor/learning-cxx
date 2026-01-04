@@ -4,8 +4,12 @@
 bool is_fibonacci(int *ptr, int len, int stride) {
     ASSERT(len >= 3, "`len` should be at least 3");
     // TODO: 编写代码判断从 ptr 开始，每 stride 个元素取 1 个元素，组成长度为 n 的数列是否满足
+    bool ret = true;
+    for (auto start = len-1; ret && start > 1; --start) {
+            ret &= (*(ptr + stride * start) == *(ptr + stride*(start-1)) + *(ptr + stride*(start-2)));
+    }
     // arr[i + 2] = arr[i] + arr[i + 1]
-    return true;
+    return ret;
 }
 
 // ---- 不要修改以下代码 ----

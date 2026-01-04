@@ -1,4 +1,5 @@
 #include "../exercise.h"
+#include <utility>
 
 // READ: 左值右值（概念）<https://learn.microsoft.com/zh-cn/cpp/c-language/l-value-and-r-value-expressions?view=msvc-170>
 // READ: 左值右值（细节）<https://zh.cppreference.com/w/cpp/language/value_category>
@@ -15,27 +16,52 @@ class DynFibonacci {
 
 public:
     // TODO: 实现动态设置容量的构造器
-    DynFibonacci(int capacity): cache(new ?), cached(?) {}
+    DynFibonacci(int capacity) : cache(new size_t[capacity]), cached(3) {
+        ASSERT(capacity >= 3, "capacity should be >= 3");
+        cache[0] = 0;
+        cache[1] = 1;
+        cache[2] = 1;
+    }
 
     // TODO: 实现移动构造器
-    DynFibonacci(DynFibonacci &&) noexcept = delete;
+    // 接管对应的 other.cache 所指向的内容
+    // &&表达了右值引用类型 ，表示这个构造函数只接受“将亡值/临时对象”
+    // （通常是 std::move(x) 产生的那个），用于移动语义。
+    DynFibonacci(DynFibonacci&& other) noexcept : cache(other.cache), cached(other.cached) {
+        other.cache = nullptr;
+        other.cached = 0;
+    }
 
     // TODO: 实现移动赋值
     // NOTICE: ⚠ 注意移动到自身问题 ⚠
-    DynFibonacci &operator=(DynFibonacci &&) noexcept = delete;
+    DynFibonacci& operator=(DynFibonacci&& other) noexcept {
+        if (this == &other) {
+            return *this;
+        }
+        // 先放掉lvalue部分的资源
+        delete[] cache;
+        // 获取other的过渡权
+        cache = other.cache;
+        cached = other.cached;
+        other.cache = nullptr;
+        other.cached = 0;
+        return *this;
+    }
 
     // TODO: 实现析构器，释放缓存空间
-    ~DynFibonacci();
+    ~DynFibonacci() {
+        delete[] cache;
+    }
 
     // TODO: 实现正确的缓存优化斐波那契计算
     size_t operator[](int i) {
-        for (; false; ++cached) {
-            cache[cached] = cache[cached - 1] + cache[cached - 2];
+        for (; this->cached <= i; ++this->cached) {
+            cache[this->cached] = cache[this->cached - 1] + cache[this->cached - 2];
         }
         return cache[i];
     }
 
-    // NOTICE: 不要修改这个方法
+    // NOTICE: 不要修改这个方法，傻逼的实现
     size_t operator[](int i) const {
         ASSERT(i <= cached, "i out of range");
         return cache[i];
