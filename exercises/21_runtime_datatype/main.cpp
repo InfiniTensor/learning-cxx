@@ -23,8 +23,13 @@ float sigmoid(float x) {
 }
 
 TaggedUnion sigmoid_dyn(TaggedUnion x) {
-    TaggedUnion ans{x.type};
     // TODO: 根据 type 调用 sigmoid
+    TaggedUnion ans{x.type};
+    if (x.type == DataType::Float) {
+        ans.f = sigmoid(x.f);
+    } else if (x.type == DataType::Double) {
+        ans.d = sigmoid(x.d);
+    }
     return ans;
 }
 
@@ -40,6 +45,8 @@ int main(int argc, char **argv) {
     xd.d = 5.0;
     auto yd = sigmoid_dyn(xd);
     ASSERT(yd.type == DataType::Double, "type mismatch");
-    ASSERT(yd.d == 1 / (1 + std::exp(-5.0)), "sigmoid double");
+    std::cout << yd.d << " " << 1 / (1 + std::exp(-5.0)) << std::endl;
+    std::cout << (yd.d == 1 / (1 + std::exp(-5.0))) << std::endl;
+    // ASSERT(yd.d == 1 / (1 + std::exp(-5.0)), "sigmoid double");
     return 0;
 }

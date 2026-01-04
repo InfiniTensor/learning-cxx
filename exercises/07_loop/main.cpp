@@ -7,7 +7,9 @@ static unsigned long long fibonacci(int i) {
     // TODO: 为缓存设置正确的初始值
     static unsigned long long cache[96], cached;
     // TODO: 设置正确的循环条件
-    for (; false; ++cached) {
+    cache[0] = 0;
+    cache[2] = cache[1] = 1;
+    for (cached = 2; cached < 96; ++cached) {
         cache[cached] = cache[cached - 1] + cache[cached - 2];
     }
     return cache[i];

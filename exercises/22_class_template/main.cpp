@@ -10,6 +10,10 @@ struct Tensor4D {
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
+        for (auto i = 0; i < 4; ++i) {
+            shape[i] = shape_[i];
+            size *= shape[i];
+        }
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -28,6 +32,39 @@ struct Tensor4D {
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
         // TODO: 实现单向广播的加法
+        // 计算this的总元素数（验证用，非必需）
+        unsigned int this_size = 1;
+        for (int i = 0; i < 4; ++i) this_size *= shape[i];
+        // 计算others的总元素数（验证用，非必需）
+        unsigned int others_size = 1;
+        for (int i = 0; i < 4; ++i) others_size *= others.shape[i];
+
+        // 四层循环遍历this的所有元素
+        for (auto i = 0u; i < shape[0]; ++i) {
+            for (auto j = 0u; j < shape[1]; ++j) {
+                for (auto k = 0u; k < shape[2]; ++k) {
+                    for (auto l = 0u; l < shape[3]; ++l) {
+                        // 核心修正：计算others的广播索引（基于others的shape）
+                        // 维度0：others.shape[0]为1则取0，否则取i
+                        unsigned int idx0 = (others.shape[0] == 1) ? 0 : i;
+                        // 维度1：others.shape[1]为1则取0，否则取j
+                        unsigned int idx1 = (others.shape[1] == 1) ? 0 : j;
+                        // 维度2：others.shape[2]为1则取0，否则取k
+                        unsigned int idx2 = (others.shape[2] == 1) ? 0 : k;
+                        // 维度3：others.shape[3]为1则取0，否则取l
+                        unsigned int idx3 = (others.shape[3] == 1) ? 0 : l;
+
+                        // 计算this当前元素的展平索引（原逻辑正确）
+                        unsigned int this_idx = ((i * shape[1] + j) * shape[2] + k) * shape[3] + l;
+                        // 计算others广播后的展平索引（核心修正：基于others的shape）
+                        unsigned int other_idx = ((idx0 * others.shape[1] + idx1) * others.shape[2] + idx2) * others.shape[3] + idx3;
+
+                        // 广播加法
+                        data[this_idx] += others.data[other_idx];
+                    }
+                }
+            }
+        }
         return *this;
     }
 };
