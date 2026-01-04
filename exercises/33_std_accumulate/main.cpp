@@ -1,5 +1,7 @@
 ﻿#include "../exercise.h"
+#include <algorithm>
 #include <numeric>
+#include <vector>
 
 // READ: `std::accumulate` <https://zh.cppreference.com/w/cpp/algorithm/accumulate>
 
@@ -11,7 +13,10 @@ int main(int argc, char **argv) {
     //       - 形状为 shape；
     //       - 连续存储；
     //       的张量占用的字节数
-    // int size =
+    std::vector<int> shape_vec(shape, shape + sizeof(shape) / sizeof(shape[0]));
+    int size = std::accumulate(shape_vec.begin(), shape_vec.end(), shape_vec.size(), [](int acc, int n) {
+        return acc * n;
+    });
     ASSERT(size == 602112, "4x1x3x224x224 = 602112");
     return 0;
 }
