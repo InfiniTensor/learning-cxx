@@ -10,6 +10,10 @@ struct Tensor4D {
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
+        for (int i = 0; i < 4; i++) {
+            shape[i] = shape_[i];
+            size *= shape[i];
+        }
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -27,7 +31,47 @@ struct Tensor4D {
     // 例如，`this` 形状为 `[1, 2, 3, 4]`，`others` 形状为 `[1, 2, 1, 4]`，
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
-        // TODO: 实现单向广播的加法
+        // 检查广播兼容性
+        for (int i = 0; i < 4; i++) {
+            if (others.shape[i] != 1 && others.shape[i] != shape[i]) {
+                return *this;
+            }
+        }
+
+        // 计算各个维度的步长
+        unsigned int stride_this[4] = {1, 1, 1, 1};
+        unsigned int stride_others[4] = {1, 1, 1, 1};
+        
+        for (int i = 2; i >= 0; i--) {
+            stride_this[i] = stride_this[i + 1] * shape[i + 1];
+            stride_others[i] = stride_others[i + 1] * others.shape[i + 1];
+        }
+
+        // 广播加法
+        for (unsigned int i = 0; i < shape[0]; i++) {
+            for (unsigned int j = 0; j < shape[1]; j++) {
+                for (unsigned int k = 0; k < shape[2]; k++) {
+                    for (unsigned int l = 0; l < shape[3]; l++) {
+                        unsigned int idx_this = i * stride_this[0] + j * stride_this[1] + 
+                                               k * stride_this[2] + l;
+                        
+                        // 计算广播索引
+                        unsigned int i_other = others.shape[0] == 1 ? 0 : i;
+                        unsigned int j_other = others.shape[1] == 1 ? 0 : j;
+                        unsigned int k_other = others.shape[2] == 1 ? 0 : k;
+                        unsigned int l_other = others.shape[3] == 1 ? 0 : l;
+                        
+                        unsigned int idx_others = i_other * stride_others[0] + 
+                                                 j_other * stride_others[1] + 
+                                                 k_other * stride_others[2] + 
+                                                 l_other;
+                        
+                        data[idx_this] += others.data[idx_others];
+                    }
+                }
+            }
+        }
+        
         return *this;
     }
 };

@@ -14,12 +14,24 @@ class Fibonacci {
 
 public:
     // TODO: 实现构造器
-    // Fibonacci()
+    Fibonacci() {
+        cache[0] = 0;
+        cache[1] = 1;
+        cached = 2;  // 已经缓存了0和1两个值
+        
+        // 预先计算并缓存到最大可能的索引（15）
+        for (; cached < 16; ++cached) {
+            cache[cached] = cache[cached - 1] + cache[cached - 2];
+        }
+    }
+
 
     // TODO: 实现正确的缓存优化斐波那契计算
     size_t get(int i) {
-        for (; false; ++cached) {
+        // 如果请求的索引超出已缓存范围，继续计算并缓存
+        while (i >= cached && cached < 16) {
             cache[cached] = cache[cached - 1] + cache[cached - 2];
+            ++cached;
         }
         return cache[i];
     }
