@@ -10,6 +10,10 @@ struct Tensor4D {
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
+        for (int i = 0; i < 4; ++i) {
+            size *= shape_[i];
+            shape[i] = shape_[i];
+        }
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -27,7 +31,49 @@ struct Tensor4D {
     // 例如，`this` 形状为 `[1, 2, 3, 4]`，`others` 形状为 `[1, 2, 1, 4]`，
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
-        // TODO: 实现单向广播的加法
+        // 验证形状兼容性
+        for (int i = 0; i < 4; ++i) {
+            if (others.shape[i] != this->shape[i] && others.shape[i] != 1) {
+                throw std::invalid_argument("Shape mismatch");
+            }
+        }
+
+        // 广播计算
+        unsigned int this_strides[4] = {1, 1, 1, 1};
+        unsigned int others_strides[4] = {1, 1, 1, 1};
+
+        // 计算 strides（步长）
+        for (int i = 3; i > 0; --i) {
+            this_strides[i - 1] = this_strides[i] * this->shape[i];
+            others_strides[i - 1] = others_strides[i] * others.shape[i];
+        }
+
+        // 遍历 this 的所有元素
+        for (unsigned int i = 0; i < this_strides[0] * this->shape[0]; ++i) {
+            unsigned int this_indices[4];
+            unsigned int others_indices[4];
+
+            // 计算 this 的多维索引
+            unsigned int temp = i;
+            for (int j = 0; j < 4; ++j) {
+                this_indices[j] = temp / this_strides[j];
+                temp %= this_strides[j];
+            }
+
+            // 计算 others 的多维索引
+            for (int j = 0; j < 4; ++j) {
+                others_indices[j] = (others.shape[j] == 1) ? 0 : this_indices[j];
+            }
+
+            // 计算平坦索引并执行加法
+            unsigned int others_flat_index = 0;
+            for (int j = 0; j < 4; ++j) {
+                others_flat_index += others_indices[j] * others_strides[j];
+            }
+
+            this->data[i] += others.data[others_flat_index];
+        }
+
         return *this;
     }
 };
