@@ -4,6 +4,7 @@
 
 static int i = 0;
 
+// clang-format off
 struct X {
     int x;
 
@@ -43,6 +44,7 @@ struct B : public A {
         std::cout << ++i << ". " << "~B(" << a << ", X(" << x.x << "))" << std::endl;
     }
 };
+// clang-format off
 
 int main(int argc, char **argv) {
     X x = X(1);
@@ -50,9 +52,9 @@ int main(int argc, char **argv) {
     B b = B(3);
 
     // TODO: 补全三个类型的大小
-    static_assert(sizeof(X) == ?, "There is an int in X");
-    static_assert(sizeof(A) == ?, "There is an int in A");
-    static_assert(sizeof(B) == ?, "B is an A with an X");
+    static_assert(sizeof(X) == 4, "There is an int in X");
+    static_assert(sizeof(A) == 4, "There is an int in A");
+    static_assert(sizeof(B) == 8, "B is an A with an X");
 
     i = 0;
     std::cout << std::endl
@@ -63,6 +65,7 @@ int main(int argc, char **argv) {
     // B ba = A(4);
 
     // 这也是不可能的，因为 A 是 B 的一部分，就好像不可以把套娃的外层放进内层里。
+    // 核心点：ab 对象通过拷贝构造函数创建。它只从 B 中“切”走了 A 的部分。
     A ab = B(5);// 然而这个代码可以编译和运行！
     // THINK: 观察打印出的信息，推测把大象放进冰箱分几步？
     // THINK: 这样的代码是“安全”的吗？

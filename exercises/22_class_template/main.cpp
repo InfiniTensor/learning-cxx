@@ -9,7 +9,11 @@ struct Tensor4D {
 
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
-        // TODO: 填入正确的 shape 并计算 size
+        // 复制 shape 并计算总大小
+        for (int i = 0; i < 4; ++i) {
+            shape[i] = shape_[i];
+            size *= shape[i];
+        }
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -27,7 +31,34 @@ struct Tensor4D {
     // 例如，`this` 形状为 `[1, 2, 3, 4]`，`others` 形状为 `[1, 2, 1, 4]`，
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
-        // TODO: 实现单向广播的加法
+        // 实现单向广播的加法
+        for (unsigned int i = 0; i < shape[0]; ++i) {
+            for (unsigned int j = 0; j < shape[1]; ++j) {
+                for (unsigned int k = 0; k < shape[2]; ++k) {
+                    for (unsigned int l = 0; l < shape[3]; ++l) {
+                        // 计算 this 的线性索引
+                        unsigned int idx = i * (shape[1] * shape[2] * shape[3]) +
+                                          j * (shape[2] * shape[3]) +
+                                          k * shape[3] +
+                                          l;
+                        
+                        // 计算 others 的坐标（考虑广播）
+                        unsigned int o_i = others.shape[0] == 1 ? 0 : i;
+                        unsigned int o_j = others.shape[1] == 1 ? 0 : j;
+                        unsigned int o_k = others.shape[2] == 1 ? 0 : k;
+                        unsigned int o_l = others.shape[3] == 1 ? 0 : l;
+                        
+                        // 计算 others 的线性索引
+                        unsigned int o_idx = o_i * (others.shape[1] * others.shape[2] * others.shape[3]) +
+                                            o_j * (others.shape[2] * others.shape[3]) +
+                                            o_k * others.shape[3] +
+                                            o_l;
+                        
+                        data[idx] += others.data[o_idx];
+                    }
+                }
+            }
+        }
         return *this;
     }
 };
