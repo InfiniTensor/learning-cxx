@@ -10,6 +10,10 @@ struct Tensor4D {
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
+        for(int i=0;i<4;i++){
+            size *= shape_[i];
+            shape[i] = shape_[i];
+        }
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -28,6 +32,23 @@ struct Tensor4D {
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
         // TODO: 实现单向广播的加法
+        for (unsigned int i0 = 0; i0 < shape[0]; ++i0) { // 遍历第 0 维
+                    unsigned int o0 = i0 % others.shape[0]; // 计算 others 在第 0 维的广播索引（若长度为1则始终为0）
+                    for (unsigned int i1 = 0; i1 < shape[1]; ++i1) { // 遍历第 1 维
+                        unsigned int o1 = i1 % others.shape[1]; // 计算 others 在第 1 维的广播索引
+                        for (unsigned int i2 = 0; i2 < shape[2]; ++i2) { // 遍历第 2 维
+                            unsigned int o2 = i2 % others.shape[2]; // 计算 others 在第 2 维的广播索引
+                            for (unsigned int i3 = 0; i3 < shape[3]; ++i3) { // 遍历第 3 维
+                                unsigned int o3 = i3 % others.shape[3]; // 计算 others 在第 3 维的广播索引
+                                // 下面计算当前张量（this）的展平索引位置
+                                unsigned int self_idx = i3 + i2 * shape[3] + i1 * shape[3] * shape[2] + i0 * shape[3] * shape[2] * shape[1]; // 计算 4D 到 1D 的索引映射
+                                // 下面根据广播后的索引计算 others 张量的展平索引位置
+                                unsigned int others_idx = o3 + o2 * others.shape[3] + o1 * others.shape[3] * others.shape[2] + o0 * others.shape[3] * others.shape[2] * others.shape[1]; // 映射 others 的 1D 索引
+                                data[self_idx] += others.data[others_idx]; // 将 others 对应位置的值加到当前张量上
+                            } // 第 3 维循环结束
+                        } // 第 2 维循环结束
+                    } // 第 1 维循环结束
+        } // 第 0 维循环结束
         return *this;
     }
 };

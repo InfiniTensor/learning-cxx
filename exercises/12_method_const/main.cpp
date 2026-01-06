@@ -5,7 +5,8 @@
 struct Fibonacci {
     int numbers[11];
     // TODO: 修改方法签名和实现，使测试通过
-    int get(int i) {
+    constexpr int get(int i) const {
+        return numbers[i];
     }
 };
 
@@ -15,3 +16,4 @@ int main(int argc, char **argv) {
     std::cout << "fibonacci(10) = " << FIB.get(10) << std::endl;
     return 0;
 }
+
