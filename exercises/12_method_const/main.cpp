@@ -4,8 +4,10 @@
 
 struct Fibonacci {
     int numbers[11];
-    // TODO: 修改方法签名和实现，使测试通过
-    int get(int i) {
+
+    // 修改方法签名为 constexpr 使其支持编译时常量计算
+    constexpr int get(int i) const {  // const 确保该方法不会修改类的成员
+        return numbers[i];
     }
 };
 

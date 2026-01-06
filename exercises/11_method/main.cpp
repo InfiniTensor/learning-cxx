@@ -4,19 +4,36 @@ struct Fibonacci {
     unsigned long long cache[128];
     int cached;
 
-    // TODO: 实现正确的缓存优化斐波那契计算
+    // 构造函数初始化缓存
+    Fibonacci() {
+        cache[0] = 0;
+        cache[1] = 1;
+        cached = 2; // 只缓存了 0 和 1
+    }
+
+    // 获取斐波那契数，并使用缓存优化
     unsigned long long get(int i) {
-        for (; false; ++cached) {
-            cache[cached] = cache[cached - 1] + cache[cached - 2];
+        if (i < cached) {
+            return cache[i]; // 如果已缓存，直接返回
         }
-        return cache[i];
+
+        // 从已缓存的地方开始计算
+        for (int j = cached; j <= i; ++j) {
+            cache[j] = cache[j - 1] + cache[j - 2]; // 计算并缓存
+        }
+
+        cached = i + 1; // 更新缓存已计算的个数
+        return cache[i]; // 返回计算结果
     }
 };
 
 int main(int argc, char **argv) {
-    // TODO: 初始化缓存结构体，使计算正确
+    // 初始化 Fibonacci 对象
     Fibonacci fib;
+
+    // 计算斐波那契数并验证结果
     ASSERT(fib.get(10) == 55, "fibonacci(10) should be 55");
     std::cout << "fibonacci(10) = " << fib.get(10) << std::endl;
+
     return 0;
 }
