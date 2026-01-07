@@ -6,12 +6,17 @@
 int main(int argc, char **argv) {
     using DataType = float;
     int shape[]{1, 3, 224, 224};
+
     // TODO: 调用 `std::accumulate` 计算：
-    //       - 数据类型为 float；
-    //       - 形状为 shape；
-    //       - 连续存储；
-    //       的张量占用的字节数
-    // int size =
+    // 1. 计算所有维度的乘积（即元素总数）
+    // 2. 初始值设为 sizeof(DataType)，这样最后的结果直接就是总字节数
+    // 或者初始值设为 1，最后再乘以 sizeof(DataType)
+    int size = std::accumulate(
+        std::begin(shape),
+        std::end(shape),
+        static_cast<int>(sizeof(DataType)),
+        std::multiplies<int>());
+
     ASSERT(size == 602112, "4x1x3x224x224 = 602112");
     return 0;
 }

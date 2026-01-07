@@ -1,18 +1,26 @@
 ﻿#include "../exercise.h"
 #include <string>
-
-// READ: 字符串 <https://zh.cppreference.com/w/cpp/string/basic_string>
+#include <type_traits>// 为 std::is_same_v 提供支持
 
 int main(int argc, char **argv) {
-    // READ: 字符串字面量 <https://zh.cppreference.com/w/cpp/string/basic_string/operator%22%22s>
     using namespace std::string_literals;
+
+    // 带 s 后缀，类型是 std::string
     auto hello = "Hello"s;
+    // 不带后缀，类型是 const char*
     auto world = "world";
-    // READ: `decltype` 表达式 <https://zh.cppreference.com/w/cpp/language/decltype>
-    // READ: `std::is_same_v` 元编程判别 <https://zh.cppreference.com/w/cpp/types/is_same>
-    ASSERT((std::is_same_v<decltype(hello), ?>), "Fill in the missing type.");
-    ASSERT((std::is_same_v<decltype(world), ?>), "Fill in the missing type.");
-    // TODO: 将 `?` 替换为正确的字符串
-    ASSERT(hello + ", " + world + '!' == "?", "Fill in the missing string.");
+
+    // 1. hello 的类型是 std::string
+    ASSERT((std::is_same_v<decltype(hello), std::string>), "Fill in the missing type.");
+
+    // 2. world 的类型是 const char* (字面量在作为表达式时退化为指针)
+    ASSERT((std::is_same_v<decltype(world), const char *>), "Fill in the missing type.");
+
+    // 3. 拼接逻辑：
+    // hello (string) + ", " (const char*) -> "Hello, " (string)
+    // "Hello, " (string) + world (const char*) -> "Hello, world" (string)
+    // "Hello, world" (string) + '!' (char) -> "Hello, world!" (string)
+    ASSERT(hello + ", " + world + '!' == "Hello, world!", "Fill in the missing string.");
+
     return 0;
 }
