@@ -1,12 +1,10 @@
 #include "../exercise.h"
 
-// READ: 声明 <https://zh.cppreference.com/w/cpp/language/declarations>
-// NOTICE: cppreference 中的示例中指出了复杂声明的解读法，建议认真阅读。
-// NOTICE: 补充由内而外读法的机翻解释 <https://learn.microsoft.com/zh-cn/cpp/c-language/interpreting-more-complex-declarators?view=msvc-170>
-
 // TODO: 在这里声明函数
+int add(int a, int b);// <--- 添加这一行（函数原型声明）
 
 int main(int argc, char **argv) {
+    // 这里调用 add，编译器现在知道它是一个接收两个 int 并返回 int 的函数了
     ASSERT(add(123, 456) == 123 + 456, "add(123, 456) should be 123 + 456");
 
     auto x = 1, y = 2;
@@ -14,6 +12,7 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+// TODO: 补全函数定义
 int add(int a, int b) {
-    // TODO: 补全函数定义，但不要移动代码行
+    return a + b;// <--- 在这里补全逻辑
 }
