@@ -45,14 +45,14 @@ struct B : public A {
 };
 
 int main(int argc, char **argv) {
-    X x = X(1);
-    A a = A(2);
-    B b = B(3);
+    X x = X(1);  //造了一个 X，里面是 1
+    A a = A(2);  //造一个 A(2)，通常不会多一次拷贝
+    B b = B(3);  //打印 B(1, X(3))
 
     // TODO: 补全三个类型的大小
-    static_assert(sizeof(X) == ?, "There is an int in X");
-    static_assert(sizeof(A) == ?, "There is an int in A");
-    static_assert(sizeof(B) == ?, "B is an A with an X");
+    static_assert(sizeof(X) == sizeof(int), "There is an int in X");
+    static_assert(sizeof(A) == sizeof(int), "There is an int in A");
+    static_assert(sizeof(B) == sizeof(A) + sizeof(X), "B is an A with an X");
 
     i = 0;
     std::cout << std::endl

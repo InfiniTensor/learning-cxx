@@ -1,36 +1,74 @@
 ﻿#include "../exercise.h"
 #include <cstring>
+
 // READ: 类模板 <https://zh.cppreference.com/w/cpp/language/class_template>
 
-template<class T>
+template <class T>
 struct Tensor4D {
-    unsigned int shape[4];
-    T *data;
+    unsigned int shape[4]{};
+    T *data = nullptr;
 
-    Tensor4D(unsigned int const shape_[4], T const *data_) {
+    // 用指针形式更好匹配：unsigned int const shape_[4] 在参数处也会退化成指针
+    Tensor4D(const unsigned int *shape_, const T *data_) {
         unsigned int size = 1;
-        // TODO: 填入正确的 shape 并计算 size
+
+        // 1) 复制 shape 并计算 size（四个维度相乘）
+        for (int d = 0; d < 4; ++d) {
+            shape[d] = shape_[d];
+            size *= shape[d];
+        }
+
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
-    ~Tensor4D() {
-        delete[] data;
-    }
+
+    ~Tensor4D() { delete[] data; }
 
     // 为了保持简单，禁止复制和移动
     Tensor4D(Tensor4D const &) = delete;
     Tensor4D(Tensor4D &&) noexcept = delete;
 
-    // 这个加法需要支持“单向广播”。
-    // 具体来说，`others` 可以具有与 `this` 不同的形状，形状不同的维度长度必须为 1。
-    // `others` 长度为 1 但 `this` 长度不为 1 的维度将发生广播计算。
-    // 例如，`this` 形状为 `[1, 2, 3, 4]`，`others` 形状为 `[1, 2, 1, 4]`，
-    // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
+    // 单向广播加法：others 的每一维要么等于 this，要么为 1
     Tensor4D &operator+=(Tensor4D const &others) {
-        // TODO: 实现单向广播的加法
+        // 2) 形状检查：不满足就直接断言失败
+        for (int d = 0; d < 4; ++d) {
+            ASSERT(others.shape[d] == shape[d] || others.shape[d] == 1,
+                   "Invalid broadcast shape");
+        }
+
+        // 3) 遍历 this 的所有坐标 (i0,i1,i2,i3)
+        //    others 对应坐标 (o0,o1,o2,o3)：如果 others 该维是 1，则该维永远取 0（广播）
+        for (unsigned int i0 = 0; i0 < shape[0]; ++i0) {
+            unsigned int o0 = (others.shape[0] == 1 ? 0 : i0);
+            for (unsigned int i1 = 0; i1 < shape[1]; ++i1) {
+                unsigned int o1 = (others.shape[1] == 1 ? 0 : i1);
+                for (unsigned int i2 = 0; i2 < shape[2]; ++i2) {
+                    unsigned int o2 = (others.shape[2] == 1 ? 0 : i2);
+                    for (unsigned int i3 = 0; i3 < shape[3]; ++i3) {
+                        unsigned int o3 = (others.shape[3] == 1 ? 0 : i3);
+
+                        // this 的一维下标（按行主序展平）
+                        unsigned int idx =
+                            ((i0 * shape[1] + i1) * shape[2] + i2) * shape[3] + i3;
+
+                        // others 的一维下标（同样展平，但用广播后的 o0..o3）
+                        unsigned int oidx =
+                            ((o0 * others.shape[1] + o1) * others.shape[2] + o2) *
+                                others.shape[3] +
+                            o3;
+
+                        data[idx] += others.data[oidx];
+                    }
+                }
+            }
+        }
         return *this;
     }
 };
+
+// ✅ 类模板参数推导指引（让 auto t0 = Tensor4D(shape, data) 能推导出 T）
+template <class T>
+Tensor4D(const unsigned int *, const T *) -> Tensor4D<T>;
 
 // ---- 不要修改以下代码 ----
 int main(int argc, char **argv) {
