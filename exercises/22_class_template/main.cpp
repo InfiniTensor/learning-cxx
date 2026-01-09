@@ -10,6 +10,10 @@ struct Tensor4D {
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
+        for (int i = 0; i < 4; ++i) {
+            shape[i] = shape_[i];
+            size *= shape[i];
+        }
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -28,6 +32,29 @@ struct Tensor4D {
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
         // TODO: 实现单向广播的加法
+            unsigned int this_stride[4];
+            unsigned int others_stride[4];
+            this_stride[3] = 1;
+            others_stride[3] = 1;
+            for (int i = 2; i >= 0; --i) {
+                this_stride[i] = this_stride[i + 1] * shape[i + 1];
+                others_stride[i] = others_stride[i + 1] * others.shape[i + 1];
+            }   
+            for (unsigned int n = 0; n < shape[0]; ++n) {
+                for (unsigned int c = 0; c < shape[1]; ++c) {
+                    for (unsigned int h = 0; h < shape[2]; ++h) {
+                        for (unsigned int w = 0; w < shape[3]; ++w) {
+                            unsigned int this_index = n * this_stride[0] + c * this_stride[1] + h * this_stride[2] + w * this_stride[3];
+                            unsigned int others_index = (others.shape[0] == 1 ? 0 : n * others_stride[0]) +
+                                                       (others.shape[1] == 1 ? 0 : c * others_stride[1]) +
+                                                       (others.shape[2] == 1 ? 0 : h * others_stride[2]) +
+                                                       (others.shape[3] == 1 ? 0 : w * others_stride[3]);
+                            data[this_index] += others.data[others_index];
+                        }
+                    }
+                }
+            }
+
         return *this;
     }
 };
