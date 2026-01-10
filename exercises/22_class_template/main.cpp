@@ -1,5 +1,6 @@
 ﻿#include "../exercise.h"
 #include <cstring>
+#include <stdexcept>
 // READ: 类模板 <https://zh.cppreference.com/w/cpp/language/class_template>
 
 template<class T>
@@ -10,6 +11,10 @@ struct Tensor4D {
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
+        for (int i = 0; i < 4; ++ i) {
+            shape[i] = shape_[i];
+            size *= shape[i];
+        }
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -28,6 +33,61 @@ struct Tensor4D {
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
         // TODO: 实现单向广播的加法
+        
+        // 先进行兼容性检查
+        for (int i = 0; i < 4; ++ i) {
+            if (others.shape[i] != 1 && shape[i] != others.shape[i])
+                throw std::invalid_argument("Incompatible shapes for broadcast addition");
+        }
+
+        // 思路 1
+        // 遍历this.data中的元素
+        for (int i = 0; i < shape[0]; ++ i) {
+            for (int j = 0; j < shape[1]; ++ j) {
+                for (int k = 0; k < shape[2]; ++ k) {
+                    for (int l = 0; l < shape[3]; ++ l) {
+                        // 计算this.data的线性索引
+                        int this_index = i * shape[1] * shape[2] * shape[3] +
+                                         j * shape[2] * shape[3] +
+                                         k * shape[3] +
+                                         l;
+                        // 计算others.data的线性索引，考虑广播
+                        int others_index = (others.shape[0] == 1 ? 0 : i) * others.shape[1] * others.shape[2] * others.shape[3] +
+                                           (others.shape[1] == 1 ? 0 : j) * others.shape[2] * others.shape[3] +
+                                           (others.shape[2] == 1 ? 0 : k) * others.shape[3] +
+                                           (others.shape[3] == 1 ? 0 : l);
+                        // 执行加法
+                        data[this_index] += others.data[others_index];
+                    }
+                }
+            }
+        }
+
+        // 思路 2
+        /*
+        // 遍历当前张量的所有元素
+        for (unsigned int i = 0; i < shape[0]; ++i) {
+            unsigned int oi = (others.shape[0] == 1) ? 0 : i;
+            for (unsigned int j = 0; j < shape[1]; ++j) {
+                unsigned int oj = (others.shape[1] == 1) ? 0 : j;
+                for (unsigned int k = 0; k < shape[2]; ++k) {
+                    unsigned int ok = (others.shape[2] == 1) ? 0 : k;
+                    for (unsigned int l = 0; l < shape[3]; ++l) {
+                        unsigned int ol = (others.shape[3] == 1) ? 0 : l;
+                        
+                        // 计算当前张量的索引
+                        unsigned int idx_this = get_index(i, j, k, l);
+                        // 计算其他张量的索引（考虑广播）
+                        unsigned int idx_other = ((oi * others.shape[1] + oj) * 
+                                                 others.shape[2] + ok) * others.shape[3] + ol;
+                        
+                        data[idx_this] += others.data[idx_other];
+                    }
+                }
+            }
+        }
+        */
+
         return *this;
     }
 };
