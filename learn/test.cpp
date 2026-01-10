@@ -12,7 +12,8 @@ namespace fs = std::filesystem;
 constexpr static auto XMAKE = __XMAKE__;
 
 static int process_run(const char *cmd, const char *proj, const char *log) {
-    static const auto exercises = fs::absolute(fs::path(XMAKE) / "exercises");
+    //static const auto exercises = fs::absolute(fs::path(XMAKE) / "exercises");
+    static const fs::path exercises = fs::path(XMAKE) / "exercises";
     auto command = std::string("xmake ") + cmd + " -P \"" + exercises.string() + "\" " + proj;
     if (log) {
         command += " >> ";

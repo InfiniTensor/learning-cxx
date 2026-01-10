@@ -5,7 +5,9 @@ set_languages("cxx17")
 
 target("test")
     set_kind("static")
-    add_defines(string.format("__XMAKE__=\"%s\"", os.scriptdir():gsub("\\", "/")))
+    -- add_defines('__XMAKE__="$(projectdir)"')
+    -- add_defines('__XMAKE__="$(projectdir):/"')
+    add_defines('__XMAKE__="' .. os.projectdir():gsub("\\", "/") .. '"')
     add_files("learn/test.cpp")
 
 target("learn")
