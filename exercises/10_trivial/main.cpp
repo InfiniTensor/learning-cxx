@@ -1,26 +1,38 @@
 #include "../exercise.h"
 
-// READ: Trivial type <https://learn.microsoft.com/zh-cn/cpp/cpp/trivial-standard-layout-and-pod-types?view=msvc-170>
+// READ: 枚举类型 <https://zh.cppreference.com/w/cpp/language/enum>
 
-struct FibonacciCache {
-    unsigned long long cache[16];
-    int cached;
+// `enum` 是 C 的兼容类型，本质上其对应类型的常量。
+// 在 `enum` 中定义标识符等价于定义 constexpr 常量，
+// 这些标识符不需要前缀，可以直接引用。
+// 因此 `enum` 定义会污染命名空间。
+enum ColorEnum : unsigned char {
+    COLOR_RED = 31,
+    COLOR_GREEN,
+    COLOR_YELLOW,
+    COLOR_BLUE,
 };
 
-// TODO: 实现正确的缓存优化斐波那契计算
-static unsigned long long fibonacci(FibonacciCache &cache, int i) {
-    for (; false; ++cached) {
-        cache[cached] = cache[cached - 1] + cache[cached - 2];
-    }
-    return cache.cache[i];
+// 有作用域枚举型是 C++ 引入的类型安全枚举。
+// 其内部标识符需要带前缀引用，如 `Color::Red`。
+// 作用域枚举型可以避免命名空间污染，并提供类型安全保证。
+enum class Color : int {
+    Red = COLOR_RED,
+    Green,
+    Yellow,
+    Blue,
+};
+
+ColorEnum convert_by_pun(Color c) {
+    // 正确的转换方式：使用 static_cast
+    // 首先将作用域枚举转换为底层类型 int，然后再转换为 ColorEnum
+    return static_cast<ColorEnum>(static_cast<int>(c));
 }
 
 int main(int argc, char **argv) {
-    // TODO: 初始化缓存结构体，使计算正确
-    // NOTICE: C/C++ 中，读取未初始化的变量（包括结构体变量）是未定义行为
-    // READ: 初始化的各种写法 <https://zh.cppreference.com/w/cpp/language/initialization>
-    FibonacciCache fib;
-    ASSERT(fibonacci(fib, 10) == 55, "fibonacci(10) should be 55");
-    std::cout << "fibonacci(10) = " << fibonacci(fib, 10) << std::endl;
+    ASSERT(convert_by_pun(Color::Red) == COLOR_RED, "Type punning conversion");
+    ASSERT(convert_by_pun(Color::Green) == COLOR_GREEN, "Type punning conversion");
+    ASSERT(convert_by_pun(Color::Yellow) == COLOR_YELLOW, "Type punning conversion");
+    ASSERT(convert_by_pun(Color::Blue) == COLOR_BLUE, "Type punning conversion");
     return 0;
 }

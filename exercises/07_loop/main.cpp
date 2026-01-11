@@ -5,10 +5,13 @@
 // READ: 纯函数 <https://zh.wikipedia.org/wiki/%E7%BA%AF%E5%87%BD%E6%95%B0>
 static unsigned long long fibonacci(int i) {
     // TODO: 为缓存设置正确的初始值
-    static unsigned long long cache[96], cached;
+    static unsigned long long cache[96] = {0, 1};
+    static unsigned long long cached = 1;// 已经缓存的最大索引
+
     // TODO: 设置正确的循环条件
-    for (; false; ++cached) {
-        cache[cached] = cache[cached - 1] + cache[cached - 2];
+    // 如果i比已经缓存的最大索引大，就继续计算并缓存
+    for (; cached < i; ++cached) {
+        cache[cached + 1] = cache[cached] + cache[cached - 1];
     }
     return cache[i];
 }
