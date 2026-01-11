@@ -1,45 +1,69 @@
 ﻿#include "../exercise.h"
+#include <cstring>
 #include <memory>
+#include <string>
+#include <vector>
 
-// READ: `std::shared_ptr` <https://zh.cppreference.com/w/cpp/memory/shared_ptr>
-// READ: `std::weak_ptr` <https://zh.cppreference.com/w/cpp/memory/weak_ptr>
+// READ: `std::unique_ptr` <https://zh.cppreference.com/w/cpp/memory/unique_ptr>
 
-// TODO: 将下列 `?` 替换为正确的值
+std::vector<std::string> RECORDS;
+
+class Resource {
+    std::string _records;
+
+public:
+    void record(char record) {
+        _records.push_back(record);
+    }
+
+    ~Resource() {
+        RECORDS.push_back(_records);
+    }
+};
+
+using Unique = std::unique_ptr<Resource>;
+Unique reset(Unique ptr) {
+    if (ptr) ptr->record('r');
+    return std::make_unique<Resource>();
+}
+Unique drop(Unique ptr) {
+    if (ptr) ptr->record('d');
+    return nullptr;
+}
+Unique forward(Unique ptr) {
+    if (ptr) ptr->record('f');
+    return ptr;
+}
+
 int main(int argc, char **argv) {
-    auto shared = std::make_shared<int>(10);
-    std::shared_ptr<int> ptrs[]{shared, shared, shared};
+    std::vector<std::string> problems[3];
 
-    std::weak_ptr<int> observer = shared;
-    ASSERT(observer.use_count() == ?, "");
+    drop(forward(reset(nullptr)));
+    problems[0] = std::move(RECORDS);
 
-    ptrs[0].reset();
-    ASSERT(observer.use_count() == ?, "");
+    forward(drop(reset(forward(forward(reset(nullptr))))));
+    problems[1] = std::move(RECORDS);
 
-    ptrs[1] = nullptr;
-    ASSERT(observer.use_count() == ?, "");
+    drop(drop(reset(drop(reset(reset(nullptr))))));
+    problems[2] = std::move(RECORDS);
 
-    ptrs[2] = std::make_shared<int>(*shared);
-    ASSERT(observer.use_count() == ?, "");
+    // ---- 不要修改以上代码 ----
 
-    ptrs[0] = shared;
-    ptrs[1] = shared;
-    ptrs[2] = std::move(shared);
-    ASSERT(observer.use_count() == ?, "");
+    std::vector<const char *> answers[]{
+        {"fd"},
+        {"ffr", "d"},
+        {"r", "d", "d"},// 修改为实际运行结果
+    };
 
-    std::ignore = std::move(ptrs[0]);
-    ptrs[1] = std::move(ptrs[1]);
-    ptrs[1] = std::move(ptrs[2]);
-    ASSERT(observer.use_count() == ?, "");
 
-    shared = observer.lock();
-    ASSERT(observer.use_count() == ?, "");
+    // ---- 不要修改以下代码 ----
 
-    shared = nullptr;
-    for (auto &ptr : ptrs) ptr = nullptr;
-    ASSERT(observer.use_count() == ?, "");
-
-    shared = observer.lock();
-    ASSERT(observer.use_count() == ?, "");
+    for (auto i = 0; i < 3; ++i) {
+        ASSERT(problems[i].size() == answers[i].size(), "wrong size");
+        for (auto j = 0; j < problems[i].size(); ++j) {
+            ASSERT(std::strcmp(problems[i][j].c_str(), answers[i][j]) == 0, "wrong location");
+        }
+    }
 
     return 0;
 }
