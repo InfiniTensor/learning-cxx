@@ -1,0 +1,249 @@
+toby@LAPTOP-GSIP3JR5:~/learning-cxx/exercises$ xmake run summary
+exercise00 testing
+==================
+[100%]: build ok, spent 0.044s
+Hello, InfiniTensor!
+=================
+exercise00 passed
+
+exercise01 testing
+==================
+[100%]: build ok, spent 0.044s
+0 + 0 = 0
+=================
+exercise01 passed
+
+exercise02 testing
+==================
+[100%]: build ok, spent 0.045s
+1 + 2 = 3
+=================
+exercise02 passed
+
+exercise03 testing
+==================
+[100%]: build ok, spent 0.044s
+befor func call: 99
+befor add: 99
+after add: 100
+after func call: 99
+=================
+exercise03 passed
+
+exercise04 testing
+==================
+[100%]: build ok, spent 0.045s
+=================
+exercise04 passed
+
+exercise05 testing
+==================
+[100%]: build ok, spent 0.04s
+fibonacci(20) = 6765
+fibonacci(20) = 6765
+=================
+exercise05 passed
+
+exercise06 testing
+==================
+[100%]: build ok, spent 0.045s
+=================
+exercise06 passed
+
+exercise07 testing
+==================
+[100%]: build ok, spent 0.045s
+fibonacci(90) = 2880067194370816120
+=================
+exercise07 passed
+
+exercise08 testing
+==================
+[100%]: build ok, spent 0.043s
+=================
+exercise08 passed
+
+exercise09 testing
+==================
+[100%]: build ok, spent 0.045s
+=================
+exercise09 passed
+
+exercise10 testing
+==================
+[100%]: build ok, spent 0.044s
+fibonacci(10) = 55
+=================
+exercise10 passed
+
+exercise11 testing
+==================
+[100%]: build ok, spent 0.033s
+fibonacci(10) = 55
+=================
+exercise11 passed
+
+exercise12 testing
+==================
+[100%]: build ok, spent 0.045s
+fibonacci(10) = 55
+=================
+exercise12 passed
+
+exercise13 testing
+==================
+[100%]: build ok, spent 0.043s
+fibonacci(10) = 55
+=================
+exercise13 passed
+
+exercise14 testing
+==================
+[100%]: build ok, spent 0.045s
+fibonacci(10) = 55
+=================
+exercise14 passed
+
+exercise15 testing
+==================
+[100%]: build ok, spent 0.045s
+=================
+exercise15 passed
+
+exercise16 testing
+==================
+[100%]: build ok, spent 0.046s
+=================
+exercise16 passed
+
+exercise17 testing
+==================
+[100%]: build ok, spent 0.045s
+1. X(1)
+2. A(2)
+3. A(1)
+4. X(3)
+5. B(1, X(3))
+
+-------------------------
+
+1. A(1)
+2. X(5)
+3. B(1, X(5))
+4. A(A const &) : a(1)
+5. ~B(1, X(5))
+6. ~X(5)
+7. ~A(1)
+
+-------------------------
+
+1. ~A(1)
+2. ~B(1, X(3))
+3. ~X(3)
+4. ~A(1)
+5. ~A(2)
+6. ~X(1)
+=================
+exercise17 passed
+
+exercise18 testing
+==================
+[100%]: build ok, spent 0.044s
+=================
+exercise18 passed
+
+exercise19 testing
+==================
+[100%]: build ok, spent 0.045s
+=================
+exercise19 passed
+
+exercise20 testing
+==================
+[100%]: build ok, spent 0.044s
+=================
+exercise20 passed
+
+exercise21 testing
+==================
+[100%]: build ok, spent 0.044s
+=================
+exercise21 passed
+
+exercise22 testing
+==================
+[100%]: build ok, spent 0.044s
+=================
+exercise22 passed
+
+exercise23 testing
+==================
+[100%]: build ok, spent 0.045s
+=================
+exercise23 passed
+
+exercise24 testing
+==================
+[100%]: build ok, spent 0.042s
+=================
+exercise24 passed
+
+exercise25 testing
+==================
+[100%]: build ok, spent 0.044s
+=================
+exercise25 passed
+
+exercise26 testing
+==================
+[100%]: build ok, spent 0.043s
+sizeof(std::vector<bool>) = 40
+=================
+exercise26 passed
+
+exercise27 testing
+==================
+[100%]: build ok, spent 0.044s
+=================
+exercise27 passed
+
+exercise28 testing
+==================
+[100%]: build ok, spent 0.042s
+=================
+exercise28 passed
+
+exercise29 testing
+==================
+[100%]: build ok, spent 0.041s
+=================
+exercise29 passed
+
+exercise30 testing
+==================
+[100%]: build ok, spent 0.045s
+=================
+exercise30 passed
+
+exercise31 testing
+==================
+[100%]: build ok, spent 0.043s
+=================
+exercise31 passed
+
+exercise32 testing
+==================
+[100%]: build ok, spent 0.033s
+=================
+exercise32 passed
+
+exercise33 testing
+==================
+[100%]: build ok, spent 0.044s
+=================
+exercise33 passed
+
+34/34 [##################################]
+warning: You are working in the project directory(/home/toby/learning-cxx) and you can also
+force to build in current directory via run `xmake -P .`
+toby@LAPTOP-GSIP3JR5:~/learning-cxx/exercises$ 
