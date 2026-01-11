@@ -42,39 +42,44 @@ int main(int argc, char **argv) {
     C c;
     D d;
 
-    ASSERT(a.virtual_name() == '?', MSG);
-    ASSERT(b.virtual_name() == '?', MSG);
-    ASSERT(c.virtual_name() == '?', MSG);
-    ASSERT(d.virtual_name() == '?', MSG);
-    ASSERT(a.direct_name() == '?', MSG);
-    ASSERT(b.direct_name() == '?', MSG);
-    ASSERT(c.direct_name() == '?', MSG);
-    ASSERT(d.direct_name() == '?', MSG);
+    ASSERT(a.virtual_name() == 'A', MSG);
+    ASSERT(b.virtual_name() == 'B', MSG);
+    ASSERT(c.virtual_name() == 'C', MSG);
+    ASSERT(d.virtual_name() == 'C', MSG);
+    ASSERT(a.direct_name() == 'A', MSG);
+    ASSERT(b.direct_name() == 'B', MSG);
+    ASSERT(c.direct_name() == 'C', MSG);
+    ASSERT(d.direct_name() == 'D', MSG);
 
     A &rab = b;
     B &rbc = c;
     C &rcd = d;
-
-    ASSERT(rab.virtual_name() == '?', MSG);
-    ASSERT(rbc.virtual_name() == '?', MSG);
-    ASSERT(rcd.virtual_name() == '?', MSG);
-    ASSERT(rab.direct_name() == '?', MSG);
-    ASSERT(rbc.direct_name() == '?', MSG);
-    ASSERT(rcd.direct_name() == '?', MSG);
-
+    //std::cout<< rab.virtual_name() << " " << rbc.virtual_name() << " " << rcd.virtual_name() << std::endl;
+    //std::cout<< rab.direct_name() << " " << rbc.direct_name() << " " << rcd.direct_name() << std::endl;
+    ASSERT(rab.virtual_name() == 'B', MSG);
+    ASSERT(rbc.virtual_name() == 'C', MSG);
+    ASSERT(rcd.virtual_name() == 'C', MSG);
+    ASSERT(rab.direct_name() == 'A', MSG);
+    ASSERT(rbc.direct_name() == 'B', MSG);
+    ASSERT(rcd.direct_name() == 'C', MSG);
+    
+    
+    
     A &rac = c;
     B &rbd = d;
+    //std::cout << rac.virtual_name() << " " << rbd.virtual_name() << std::endl; 
+    //std::cout << rac.direct_name() << " " << rbd.direct_name() << std::endl;
+    ASSERT(rac.virtual_name() == 'C', MSG); 
+    ASSERT(rbd.virtual_name() == 'C', MSG);
+    ASSERT(rac.direct_name() == 'A', MSG);
+    ASSERT(rbd.direct_name() == 'B', MSG);
 
-    ASSERT(rac.virtual_name() == '?', MSG);
-    ASSERT(rbd.virtual_name() == '?', MSG);
-    ASSERT(rac.direct_name() == '?', MSG);
-    ASSERT(rbd.direct_name() == '?', MSG);
-
+    
     A &rad = d;
-
-    ASSERT(rad.virtual_name() == '?', MSG);
-    ASSERT(rad.direct_name() == '?', MSG);
-
+    //std::cout << rad.virtual_name() << " " << rad.direct_name() << std::endl;
+    ASSERT(rad.virtual_name() == 'C', MSG);
+    ASSERT(rad.direct_name() == 'A', MSG);
+    
     return 0;
 }
 

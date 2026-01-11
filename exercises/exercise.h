@@ -1,6 +1,5 @@
 ﻿#ifndef __EXERCISE_H__
 #define __EXERCISE_H__
-
 #include <iostream>
 
 #define ASSERT(COND, MSG)                                                                         \
