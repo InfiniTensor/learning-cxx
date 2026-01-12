@@ -12,24 +12,51 @@
 class DynFibonacci {
     size_t *cache;
     int cached;
+    size_t capacity;
 
 public:
     // TODO: 实现动态设置容量的构造器
-    DynFibonacci(int capacity): cache(new ?), cached(?) {}
+    DynFibonacci(int capacity): cache(new size_t[capacity]), cached(capacity > 1 ? 2 : capacity), capacity(capacity) {
+        if (capacity > 0) cache[0] = 0;
+        if (capacity > 1) cache[1] = 1;
+    }
 
     // TODO: 实现移动构造器
-    DynFibonacci(DynFibonacci &&) noexcept = delete;
+    DynFibonacci(DynFibonacci &&other) noexcept
+        : cache(other.cache), cached(other.cached), capacity(other.capacity) {
+        other.cache = nullptr;
+        other.cached = 0;
+        other.capacity = 0;
+    }
 
     // TODO: 实现移动赋值
     // NOTICE: ⚠ 注意移动到自身问题 ⚠
-    DynFibonacci &operator=(DynFibonacci &&) noexcept = delete;
+    DynFibonacci &operator=(DynFibonacci &&other) noexcept {
+        if (this == &other) return *this; // 自移动保护
+        delete[] cache;
+        cache = other.cache;
+        cached = other.cached;
+        capacity = other.capacity;
+        other.cache = nullptr;
+        other.cached = 0;
+        other.capacity = 0;
+        return *this;
+    }
 
     // TODO: 实现析构器，释放缓存空间
-    ~DynFibonacci();
+    ~DynFibonacci() {
+        delete[] cache;
+    }
 
     // TODO: 实现正确的缓存优化斐波那契计算
     size_t operator[](int i) {
-        for (; false; ++cached) {
+        if (i < 0) {
+            ASSERT(false, "i out of range");
+        }
+        if ((size_t)i >= capacity) {
+            ASSERT(false, "i out of capacity");
+        }
+        for (; cached <= i; ++cached) {
             cache[cached] = cache[cached - 1] + cache[cached - 2];
         }
         return cache[i];

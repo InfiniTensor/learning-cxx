@@ -12,6 +12,8 @@ int main(int argc, char **argv) {
     //       - 连续存储；
     //       的张量占用的字节数
     // int size =
+    size_t elems = std::accumulate(std::begin(shape), std::end(shape), size_t(1), [](size_t a, int b){ return a * size_t(b); });
+    int size = static_cast<int>(elems * sizeof(DataType));
     ASSERT(size == 602112, "4x1x3x224x224 = 602112");
     return 0;
 }
