@@ -139,5 +139,27 @@ target("exercise32")
 -- std::accumulate
 target("exercise33")
     add_files("33_std_accumulate/main.cpp")
+-- 变量内存布局
+target("exercise34")
+	add_files("34_Variable_memory_location/main.cpp")
+-- CAS
+target("exercise35")
+	add_files("35_cas/main.cpp")
+-- 设计模式
+--单例模式
+target("exercise36")
+    add_files("36_singleton_pattern/main.cpp")
+-- 简单工厂模式
+target("exercise37")
+    add_files("37_simple_factory_pattern/main.cpp")
 
--- TODO: lambda; deque; forward_list; fs; thread; mutex;
+-- 工厂方法模式
+target("exercise38")
+    add_files("38_factory_method_pattern/main.cpp")
+
+-- 抽象工厂模式
+target("exercise39")
+    add_files("39_abstract_factory_pattern/main.cpp")
+
+    -- TODO: lambda; deque; forward_list; fs; thread; mutex;
+

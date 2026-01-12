@@ -48,11 +48,13 @@ int main(int argc, char **argv) {
     X x = X(1);
     A a = A(2);
     B b = B(3);
-
+    // std::cout<<sizeof(X);
+    // std::cout<<sizeof(A);
+    // std::cout<<sizeof(B);
     // TODO: 补全三个类型的大小
-    static_assert(sizeof(X) == ?, "There is an int in X");
-    static_assert(sizeof(A) == ?, "There is an int in A");
-    static_assert(sizeof(B) == ?, "B is an A with an X");
+   static_assert(sizeof(X) == 4, "There is an int in X");
+    static_assert(sizeof(A) == 4, "There is an int in A");
+    static_assert(sizeof(B) == 8, "B is an A with an X");
 
     i = 0;
     std::cout << std::endl
