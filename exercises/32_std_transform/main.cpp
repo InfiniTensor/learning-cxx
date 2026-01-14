@@ -9,7 +9,15 @@
 int main(int argc, char **argv) {
     std::vector<int> val{8, 13, 21, 34, 55};
     // TODO: 调用 `std::transform`，将 `v` 中的每个元素乘以 2，并转换为字符串，存入 `ans`
-    // std::vector<std::string> ans
+       std::vector<std::string> ans(val.size());
+       std::transform(
+        val.begin(),          // 输入序列起始迭代器
+        val.end(),            // 输入序列结束迭代器
+        ans.begin(),          // 输出序列起始迭代器
+        [](int n) {           // 一元操作函数（lambda表达式）
+            return std::to_string(n * 2); // 先乘2，再转为字符串
+        }
+    );
     ASSERT(ans.size() == val.size(), "ans size should be equal to val size");
     ASSERT(ans[0] == "16", "ans[0] should be 16");
     ASSERT(ans[1] == "26", "ans[1] should be 26");

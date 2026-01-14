@@ -5,7 +5,26 @@ bool is_fibonacci(int *ptr, int len, int stride) {
     ASSERT(len >= 3, "`len` should be at least 3");
     // TODO: 编写代码判断从 ptr 开始，每 stride 个元素取 1 个元素，组成长度为 n 的数列是否满足
     // arr[i + 2] = arr[i] + arr[i + 1]
-    return true;
+    ASSERT(len >= 3, "`len` should be at least 3");
+    // 判断从 ptr 开始，每 stride 个元素取1个，组成的数列是否满足斐波那契规则（arr[i+2] = arr[i]+arr[i+1]）
+    if (ptr == nullptr)
+        return false;
+    else
+    {
+        // 遍历数列：从第0个元素开始，验证每一组“前两个元素之和=第三个元素”
+        for (int i = 0; i < len - 2; ++i) {
+            // 按步长stride取对应位置的元素
+            int curr = ptr[i * stride];       // 当前元素
+            int next1 = ptr[(i + 1) * stride];// 下一个元素
+            int next2 = ptr[(i + 2) * stride];// 下下个元素
+            // 不满足斐波那契规则则直接返回false
+            if (next2 != curr + next1) {
+                return false;
+            }
+        }
+        // 所有组均满足规则，返回true
+        return true;
+    }
 }
 
 // ---- 不要修改以下代码 ----
