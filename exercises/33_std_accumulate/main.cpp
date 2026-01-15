@@ -10,8 +10,9 @@ int main(int argc, char **argv) {
     //       - 数据类型为 float；
     //       - 形状为 shape；
     //       - 连续存储；
-    //       的张量占用的字节数
-    // int size =
+    //       的张量占用的字节数    
+    int elements = std::accumulate(shape, shape + 4, 1, [](int a, int b) { return a * b; });
+    int size = elements * static_cast<int>(sizeof(DataType));
     ASSERT(size == 602112, "4x1x3x224x224 = 602112");
     return 0;
 }
