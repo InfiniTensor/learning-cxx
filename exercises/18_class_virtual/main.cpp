@@ -42,39 +42,42 @@ int main(int argc, char **argv) {
     C c;
     D d;
 
-    ASSERT(a.virtual_name() == '?', MSG);
-    ASSERT(b.virtual_name() == '?', MSG);
-    ASSERT(c.virtual_name() == '?', MSG);
-    ASSERT(d.virtual_name() == '?', MSG);
-    ASSERT(a.direct_name() == '?', MSG);
-    ASSERT(b.direct_name() == '?', MSG);
-    ASSERT(c.direct_name() == '?', MSG);
-    ASSERT(d.direct_name() == '?', MSG);
+    ASSERT(a.virtual_name() == 'A', MSG);
+    ASSERT(b.virtual_name() == 'B', MSG);
+    ASSERT(c.virtual_name() == 'C', MSG);
+    ASSERT(d.virtual_name() == 'C', MSG);
+    ASSERT(a.direct_name() == 'A', MSG);
+    ASSERT(b.direct_name() == 'B', MSG);
+    ASSERT(c.direct_name() == 'C', MSG);
+    ASSERT(d.direct_name() == 'D', MSG);
 
     A &rab = b;
     B &rbc = c;
     C &rcd = d;
 
-    ASSERT(rab.virtual_name() == '?', MSG);
-    ASSERT(rbc.virtual_name() == '?', MSG);
-    ASSERT(rcd.virtual_name() == '?', MSG);
-    ASSERT(rab.direct_name() == '?', MSG);
-    ASSERT(rbc.direct_name() == '?', MSG);
-    ASSERT(rcd.direct_name() == '?', MSG);
+    ASSERT(rab.virtual_name() == 'B', MSG);
+    ASSERT(rbc.virtual_name() == 'C', MSG);
+    ASSERT(rcd.virtual_name() == 'C', MSG);
+    ASSERT(rab.direct_name() == 'A', MSG);
+    ASSERT(rbc.direct_name() == 'B', MSG);
+    ASSERT(rcd.direct_name() == 'C', MSG);
 
     A &rac = c;
     B &rbd = d;
 
-    ASSERT(rac.virtual_name() == '?', MSG);
-    ASSERT(rbd.virtual_name() == '?', MSG);
-    ASSERT(rac.direct_name() == '?', MSG);
-    ASSERT(rbd.direct_name() == '?', MSG);
+    ASSERT(rac.virtual_name() == 'C', MSG);
+    ASSERT(rbd.virtual_name() == 'C', MSG);
+    ASSERT(rac.direct_name() == 'A', MSG);
+    ASSERT(rbd.direct_name() == 'B', MSG);
 
-    A &rad = d;
-
-    ASSERT(rad.virtual_name() == '?', MSG);
-    ASSERT(rad.direct_name() == '?', MSG);
-
+    A& rad = d;
+    // 虚函数支持运行时多态（动态绑定），普通函数是编译时绑定（静态绑定），A类引用指向对象d，在静态编译时表现为为A类的特性
+    ASSERT(rad.virtual_name() == 'C', MSG);
+    ASSERT(rad.direct_name() == 'A', MSG);
+    // 此为值拷贝，仅把d中A类型的特征拷贝给rad2
+    A rad2 = d;
+    ASSERT(rad2.virtual_name() == 'A', MSG);
+    ASSERT(rad2.direct_name() == 'A', MSG);
     return 0;
 }
 

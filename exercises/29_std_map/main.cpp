@@ -5,17 +5,20 @@
 // READ: `std::unordered_map` <https://zh.cppreference.com/w/cpp/container/unordered_map>
 
 template<class k, class v>
-bool key_exists(std::map<k, v> const &map, k const &key) {
-    // TODO: 实现函数
+bool key_exists(std::map<k, v> const& map, k const& key)
+{
+    return map.find(key) != map.end();
 }
 
 template<class k, class v>
-void set(std::map<k, v> &map, k key, v value) {
-    // TODO: 实现函数
+void set(std::map<k, v>& map, k key, v value)
+{
+    map[key] = value;  // 下标运算符会在不存在时插入，存在时覆盖
 }
 
 // ---- 不要修改以下代码 ----
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
     using namespace std::string_literals;
 
     std::map<std::string, std::string> secrets;
