@@ -32,36 +32,39 @@ struct Tensor4D {
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
         // TODO: 实现单向广播的加法
-        for (int d = 0; d < 4; ++d) {
-            ASSERT(others.shape[d] == shape[d] || others.shape[d] == 1,
-                   "Broadcast shape mismatch: others.shape[d] must be 1 or equal to this->shape[d].");
-        }
 
-        // 2) 预计算 strides（行主序：最后一维连续）
-        unsigned int s0 = shape[1] * shape[2] * shape[3];
-        unsigned int s1 = shape[2] * shape[3];
-        unsigned int s2 = shape[3];
-        unsigned int s3 = 1;
+        // 1. 计算 others 在各个维度上的“有效步长”
+        // 如果 others.shape[i] == 1，说明该维度需要广播，
+        // 意味着无论目标索引在这个维度怎么变，others 取值都应该取第 0 个，
+        // 所以步长设为 0。否则步长为正常的累乘值。
 
-        unsigned int os0 = others.shape[1] * others.shape[2] * others.shape[3];
-        unsigned int os1 = others.shape[2] * others.shape[3];
-        unsigned int os2 = others.shape[3];
-        unsigned int os3 = 1;
+        // 维度 3 (最内层)
+        unsigned int s3 = (others.shape[3] == 1) ? 0 : 1;
+        // 维度 2
+        unsigned int s2 = (others.shape[2] == 1) ? 0 : others.shape[3];
+        // 维度 1
+        unsigned int s1 = (others.shape[1] == 1) ? 0 : others.shape[2] * others.shape[3];
+        // 维度 0 (最外层)
+        unsigned int s0 = (others.shape[0] == 1) ? 0 : others.shape[1] * others.shape[2] * others.shape[3];
 
-        // 3) 四重循环遍历 this 的每个元素，并用广播规则取 others 对应元素
-        for (unsigned int i0 = 0; i0 < shape[0]; ++i0) {
-            unsigned int o0 = (others.shape[0] == 1) ? 0u : i0;
-            for (unsigned int i1 = 0; i1 < shape[1]; ++i1) {
-                unsigned int o1 = (others.shape[1] == 1) ? 0u : i1;
-                for (unsigned int i2 = 0; i2 < shape[2]; ++i2) {
-                    unsigned int o2 = (others.shape[2] == 1) ? 0u : i2;
-                    for (unsigned int i3 = 0; i3 < shape[3]; ++i3) {
-                        unsigned int o3 = (others.shape[3] == 1) ? 0u : i3;
+        T *dst = data;       // 指向 this 的数据头
+        T *src = others.data;// 指向 others 的数据头
 
-                        unsigned int idx = i0 * s0 + i1 * s1 + i2 * s2 + i3 * s3;
-                        unsigned int oidx = o0 * os0 + o1 * os1 + o2 * os2 + o3 * os3;
+        // 2. 遍历 this 的每一个元素
+        for (unsigned int n = 0; n < shape[0]; ++n) {
+            for (unsigned int c = 0; c < shape[1]; ++c) {
+                for (unsigned int h = 0; h < shape[2]; ++h) {
+                    for (unsigned int w = 0; w < shape[3]; ++w) {
+                        // 3. 计算 others 对应的偏移量
+                        // 也就是: n*stride0 + c*stride1 + h*stride2 + w*stride3
+                        // 因为广播维度的 stride 是 0，所以自动实现了“坐标归零”的效果
+                        unsigned int src_offset = n * s0 + c * s1 + h * s2 + w * s3;
 
-                        data[idx] += others.data[oidx];
+                        // 4. 加法运算
+                        *dst += src[src_offset];
+
+                        // 5. dst 指针自增（因为我们是按顺序遍历的）
+                        ++dst;
                     }
                 }
             }
