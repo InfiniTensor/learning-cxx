@@ -3,6 +3,8 @@ set_encodings("utf-8")
 set_warnings("all")
 set_kind("binary")
 set_languages("cxx17")
+-- 添加编译toolchains，使用mingw/g++
+set_toolchains("mingw")
 
 -- 格式化输出
 target("exercise00")
