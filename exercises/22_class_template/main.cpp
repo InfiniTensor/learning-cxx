@@ -10,6 +10,10 @@ struct Tensor4D {
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
+        for (int k = 0; k < 4; k++) {
+            shape[k] = shape_[k];
+            size *= shape[k];
+        }
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -28,6 +32,43 @@ struct Tensor4D {
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
         // TODO: 实现单向广播的加法
+        // 1) Check boardcastability per dimension
+        for (int k = 0; k < 4; ++k) {
+            ASSERT(others.shape[k] == shape[k] || others.shape[k] == 1,
+                   "Shapes are not broadcast-compatible");
+        }
+
+        // 2) Precompute strids (row-major, last axis fastest)
+        unsigned int stride_other[4];
+        {
+            unsigned int s = 1;
+            for (int k = 3; k >= 0; --k) {
+                stride_other[k] = s;
+                s *= others.shape[k];
+            }
+        }
+
+        // 3) For each element of self, map to others (use 0 index when others.shape[k]==1)
+        unsigned int total = shape[0] * shape[1] * shape[2] * shape[3];
+        for (unsigned int i = 0; i < total; ++i) {
+            // Decode i -> 4D coords in self
+            unsigned int idx = i;
+            unsigned int coord[4];
+            for (int k = 3; k >= 0; --k) {
+                coord[k] = idx % shape[k];
+                idx /= shape[k];
+            }
+
+            // Map coords to other's linear index (broadcast where dim==1)
+            unsigned int j = 0;
+            for (int k = 0; k < 4; ++k) {
+                unsigned int ck = (others.shape[k] == 1) ? 0u : coord[k];
+                j += ck * stride_other[k];
+            }
+
+            data[i] += others.data[j];
+        }
+
         return *this;
     }
 };
