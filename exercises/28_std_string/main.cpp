@@ -10,9 +10,11 @@ int main(int argc, char **argv) {
     auto world = "world";
     // READ: `decltype` 表达式 <https://zh.cppreference.com/w/cpp/language/decltype>
     // READ: `std::is_same_v` 元编程判别 <https://zh.cppreference.com/w/cpp/types/is_same>
-    ASSERT((std::is_same_v<decltype(hello), ?>), "Fill in the missing type.");
-    ASSERT((std::is_same_v<decltype(world), ?>), "Fill in the missing type.");
+    // decltype也是推导数据类型的，可以对任意表达式，并且不对表达式求值
+    // is_same_v顾名思义，是个类型比较工具，在编译期看两个类型是否一样
+    ASSERT((std::is_same_v<decltype(hello), std::string>), "Fill in the missing type.");
+    ASSERT((std::is_same_v<decltype(world), const char*>), "Fill in the missing type.");
     // TODO: 将 `?` 替换为正确的字符串
-    ASSERT(hello + ", " + world + '!' == "?", "Fill in the missing string.");
+    ASSERT(hello + ", " + world + '!' == "Hello, world!", "Fill in the missing string.");
     return 0;
 }

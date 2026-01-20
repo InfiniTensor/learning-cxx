@@ -2,6 +2,8 @@ add_rules("mode.debug", "mode.release")
 set_encodings("utf-8")
 set_warnings("all")
 set_languages("cxx17")
+-- 添加编译toolchains，使用mingw/g++
+set_toolchains("mingw")
 
 target("test")
     set_kind("static")
