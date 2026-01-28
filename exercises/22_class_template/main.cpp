@@ -10,6 +10,10 @@ struct Tensor4D {
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
+        for (int i = 0; i < 4; ++i) {
+            shape[i] = shape_[i];
+            size *= shape[i];
+        }
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -28,6 +32,43 @@ struct Tensor4D {
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
         // TODO: 实现单向广播的加法
+
+        // 1. 计算 others 在各个维度上的“有效步长”
+        // 如果 others.shape[i] == 1，说明该维度需要广播，
+        // 意味着无论目标索引在这个维度怎么变，others 取值都应该取第 0 个，
+        // 所以步长设为 0。否则步长为正常的累乘值。
+
+        // 维度 3 (最内层)
+        unsigned int s3 = (others.shape[3] == 1) ? 0 : 1;
+        // 维度 2
+        unsigned int s2 = (others.shape[2] == 1) ? 0 : others.shape[3];
+        // 维度 1
+        unsigned int s1 = (others.shape[1] == 1) ? 0 : others.shape[2] * others.shape[3];
+        // 维度 0 (最外层)
+        unsigned int s0 = (others.shape[0] == 1) ? 0 : others.shape[1] * others.shape[2] * others.shape[3];
+
+        T *dst = data;       // 指向 this 的数据头
+        T *src = others.data;// 指向 others 的数据头
+
+        // 2. 遍历 this 的每一个元素
+        for (unsigned int n = 0; n < shape[0]; ++n) {
+            for (unsigned int c = 0; c < shape[1]; ++c) {
+                for (unsigned int h = 0; h < shape[2]; ++h) {
+                    for (unsigned int w = 0; w < shape[3]; ++w) {
+                        // 3. 计算 others 对应的偏移量
+                        // 也就是: n*stride0 + c*stride1 + h*stride2 + w*stride3
+                        // 因为广播维度的 stride 是 0，所以自动实现了“坐标归零”的效果
+                        unsigned int src_offset = n * s0 + c * s1 + h * s2 + w * s3;
+
+                        // 4. 加法运算
+                        *dst += src[src_offset];
+
+                        // 5. dst 指针自增（因为我们是按顺序遍历的）
+                        ++dst;
+                    }
+                }
+            }
+        }
         return *this;
     }
 };
