@@ -51,15 +51,16 @@ int main(int argc, char **argv) {
 
     std::vector<const char *> answers[]{
         {"fd"},
-        // problems[1]:
-        // 1. reset 里的 ptr 析构 -> "ffr"
-        // 2. drop 里的 ptr 析构  -> "d"
+
+        // problems[1]: 逆序析构 (LIFO)
+        // 1. 外层 drop 的参数先析构 -> "d"
+        // 2. 内层 reset 的参数后析构 -> "ffr"
         {"d", "ffr"},
 
-        // problems[2]:
-        // 1. 内层 reset 的 ptr 析构 -> "r"
-        // 2. 内层 drop 的 ptr 析构  -> "d"
-        // 3. 外层 drop 的 ptr 析构  -> "d"
+        // problems[2]: 逆序析构 (LIFO)
+        // 1. 最外层 drop 的参数 -> "d"
+        // 2. 中间层 drop 的参数 -> "d"
+        // 3. 最内层 reset 的参数 -> "r"
         {"d", "d", "r"},
     };
 
