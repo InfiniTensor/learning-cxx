@@ -8,12 +8,18 @@ struct Tensor {
     unsigned int shape[N];
     T *data;
 
-    Tensor(unsigned int const shape_[N]) {
+    Tensor(unsigned int const shape_[N]){
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
-        data = new T[size];
+        for (int i = 0; i < N;++i)
+        {
+            shape[i] = shape_[i];
+            size *= shape_[i];
+        }
+            data = new T[size];
         std::memset(data, 0, size * sizeof(T));
     }
+
     ~Tensor() {
         delete[] data;
     }
@@ -35,7 +41,23 @@ private:
         for (unsigned int i = 0; i < N; ++i) {
             ASSERT(indices[i] < shape[i], "Invalid index");
             // TODO: 计算 index
+            if(i == N-1)
+            {
+                index += indices[i];
+            }
+            else{
+                int j = i + 1,temp = 1;
+                while (j < N)    // 子tensor计算
+                {
+                    temp *= shape[j];
+                    j++;
+                }
+                index += indices[i] * temp;
+            }
+            
         }
+        std::cout << index << std::endl;
+
         return index;
     }
 };
@@ -43,10 +65,10 @@ private:
 // ---- 不要修改以下代码 ----
 int main(int argc, char **argv) {
     {
-        unsigned int shape[]{2, 3, 4, 5};
+        unsigned int shape[]{2, 3, 4, 5};  // 四维张量的shape [batch,channel,H,W]
         auto tensor = Tensor<4, int>(shape);
 
-        unsigned int i0[]{0, 0, 0, 0};
+        unsigned int i0[]{0, 0, 0, 0}; // 四维张量的索引
         tensor[i0] = 1;
         ASSERT(tensor[i0] == 1, "tensor[i0] should be 1");
         ASSERT(tensor.data[0] == 1, "tensor[i0] should be 1");

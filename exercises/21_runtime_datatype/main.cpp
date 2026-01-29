@@ -1,7 +1,7 @@
 ﻿#include "../exercise.h"
 #include <cmath>
 
-enum class DataType {
+enum class DataType {       // int默认
     Float,
     Double,
 };
@@ -11,20 +11,30 @@ enum class DataType {
 struct TaggedUnion {
     DataType type;
     // NOTICE: struct/union 可以相互任意嵌套。
-    union {
+    union {     // 
         float f;
         double d;
     };
 };
 
 // TODO: 将这个函数模板化用于 sigmoid_dyn
-float sigmoid(float x) {
+template<class T>
+T sigmoid(T x) {
     return 1 / (1 + std::exp(-x));
 }
 
 TaggedUnion sigmoid_dyn(TaggedUnion x) {
     TaggedUnion ans{x.type};
     // TODO: 根据 type 调用 sigmoid
+    if(x.type == DataType::Float)
+    {
+        ans.f = sigmoid<float>(x.f);
+    }
+    else if (x.type == DataType::Double)
+    {
+       ans.d = sigmoid<double>(x.d);
+    }
+    
     return ans;
 }
 
@@ -41,5 +51,6 @@ int main(int argc, char **argv) {
     auto yd = sigmoid_dyn(xd);
     ASSERT(yd.type == DataType::Double, "type mismatch");
     ASSERT(yd.d == 1 / (1 + std::exp(-5.0)), "sigmoid double");
+    std::cout << sizeof(DataType) << std::endl;
     return 0;
 }
