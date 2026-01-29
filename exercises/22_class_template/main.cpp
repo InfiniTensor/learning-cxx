@@ -1,4 +1,5 @@
 ﻿#include "../exercise.h"
+#include <cstdio>
 #include <cstring>
 // READ: 类模板 <https://zh.cppreference.com/w/cpp/language/class_template>
 
@@ -10,6 +11,10 @@ struct Tensor4D {
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
+        for (int i = 0; i < 4; ++i) {
+            size *= shape_[i];
+            this->shape[i] = shape_[i];
+        }
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -28,6 +33,26 @@ struct Tensor4D {
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
         // TODO: 实现单向广播的加法
+        for (auto i = 0; i < 4; i++) {
+            ASSERT(others.shape[i] == this->shape[i] || others.shape[i] == 1, "Broadcast error: others.shape[i] must equal this->shape[i] or be 1.");
+        }
+        auto s0 = this->shape[0];
+        auto s1 = this->shape[1];
+        auto s2 = this->shape[2];
+        auto s3 = this->shape[3];
+        auto os0 = others.shape[0];
+        auto os1 = others.shape[1];
+        auto os2 = others.shape[2];
+        auto os3 = others.shape[3];
+        for (unsigned int i = 0; i < s0; ++i) {
+            for (unsigned int j = 0; j < s1; ++j) {
+                for (unsigned int k = 0; k < s2; ++k) {
+                    for (unsigned int l = 0; l < s3; ++l) {
+                        this->data[i * s1 * s2 * s3 + j * s2 * s3 + k * s3 + l] += others.data[i * os1 * os2 * os3 * (s0 == os0) + j * os2 * os3 * (s1 == os1) + k * os3 * (s2 == os2) + l * (s3 == os3)];
+                    }
+                }
+            }
+        }
         return *this;
     }
 };
