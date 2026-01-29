@@ -7,22 +7,54 @@
 class DynFibonacci {
     size_t *cache;
     int cached;
+    int capacity;
 
 public:
     // TODO: 实现动态设置容量的构造器
-    DynFibonacci(int capacity): cache(new ?), cached(?) {}
+    DynFibonacci(int capacity): cache(new size_t[capacity]()), cached(0) {
+        this->capacity = capacity;
+    }
 
     // TODO: 实现复制构造器
-    DynFibonacci(DynFibonacci const &) = delete;
+    DynFibonacci(DynFibonacci const &other) //在一个类的成员函数中，可以访问其他同类对象的私有成员。
+    {
+        cache = new size_t[other.capacity]();
+        cached = other.cached;
+        capacity = other.capacity;
+        for (int i = 0; i <= other.cached; ++i) 
+        {
+            cache[i] = other.cache[i];
+        }
+    }
 
     // TODO: 实现析构器，释放缓存空间
-    ~DynFibonacci();
+    ~DynFibonacci()
+    {
+        delete[] cache;
+    };
 
     // TODO: 实现正确的缓存优化斐波那契计算
     size_t get(int i) {
-        for (; false; ++cached) {
-            cache[cached] = cache[cached - 1] + cache[cached - 2];
+        if(i < cached)
+        {
+            return cache[i];
         }
+        for (int n = cached; n <= i;++n)
+        {
+            if(n==0)
+            {
+                cache[n] = 0;
+            }
+            else if (n==1)
+            {
+                cache[n] = 1;
+            }
+            else{
+                cache[n] = cache[n - 1] + cache[n - 2];
+            }
+          
+        }
+        cached = i;
         return cache[i];
     }
 
@@ -42,6 +74,7 @@ int main(int argc, char **argv) {
     DynFibonacci fib(12);
     ASSERT(fib.get(10) == 55, "fibonacci(10) should be 55");
     DynFibonacci const fib_ = fib;
+    std::cout << fib_.get(10);
     ASSERT(fib_.get(10) == fib.get(10), "Object cloned");
     return 0;
 }

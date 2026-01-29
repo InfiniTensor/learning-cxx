@@ -12,26 +12,78 @@
 class DynFibonacci {
     size_t *cache;
     int cached;
+    int capacity;
 
 public:
     // TODO: 实现动态设置容量的构造器
-    DynFibonacci(int capacity): cache(new ?), cached(?) {}
+    DynFibonacci(int capacity): cache(new size_t[capacity]), cached(0) {
+        this->capacity = capacity;
+    }
 
     // TODO: 实现移动构造器
-    DynFibonacci(DynFibonacci &&) noexcept = delete;
+    DynFibonacci(DynFibonacci && other) noexcept
+    {   // 移动构造直接传递指针
+        cache = other.cache;
+        cached = other.cached;
+        capacity = other.capacity;
+
+        other.cache = nullptr;
+        other.cached = 0;
+        other.capacity = 0;
+        
+    };
 
     // TODO: 实现移动赋值
     // NOTICE: ⚠ 注意移动到自身问题 ⚠
-    DynFibonacci &operator=(DynFibonacci &&) noexcept = delete;
+    DynFibonacci &operator=(DynFibonacci && other) noexcept
+    {
+        // 1. 检查自赋值：this != &other， 赋值说明对象均已经初始化完毕；
+        if (this != &other) {   // other为一个左值，因此其可以取地址；
+            // 2. 释放当前对象的资源
+            delete[] cache;
+            
+            // 3. 从other对象"偷取"资源
+            cache = other.cache;
+            cached = other.cached;
+            capacity = other.capacity;
+            
+            // 4. 将other对象置为空状态
+            other.cache = nullptr;
+            other.cached = 0;
+            other.capacity = 0;
+        }
+        // 5. 返回当前对象的引用
+        return *this;  // 这是缺少的返回语句！
+    }
 
     // TODO: 实现析构器，释放缓存空间
-    ~DynFibonacci();
+    ~DynFibonacci()
+    {
+        delete[] cache;
+    }
 
     // TODO: 实现正确的缓存优化斐波那契计算
     size_t operator[](int i) {
-        for (; false; ++cached) {
-            cache[cached] = cache[cached - 1] + cache[cached - 2];
+        if(i < cached)
+        {
+            return cache[i];
         }
+        for (int n = cached; n <= i;++n)
+        {
+            if(n==0)
+            {
+                cache[n] = 0;
+            }
+            else if (n==1)
+            {
+                cache[n] = 1;
+            }
+            else{
+                cache[n] = cache[n - 1] + cache[n - 2];
+            }
+          
+        }
+        cached = i;
         return cache[i];
     }
 
