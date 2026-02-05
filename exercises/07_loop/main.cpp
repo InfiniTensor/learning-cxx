@@ -1,4 +1,5 @@
 #include "../exercise.h"
+#include <iostream>
 
 // TODO: 改正函数实现，实现正确的缓存优化斐波那契计算
 // THINk: 这个函数是一个纯函数（pure function）吗？
@@ -6,8 +7,15 @@
 static unsigned long long fibonacci(int i) {
     // TODO: 为缓存设置正确的初始值
     static unsigned long long cache[96], cached;
+
+    if (cached == 0) {
+        cache[0] = 0ULL;
+        cache[1] = 1ULL;
+        cached = 2;
+    }
     // TODO: 设置正确的循环条件
-    for (; false; ++cached) {
+    // static_cast<unsigned>(i) is to resolve the warning different signedness: ‘long long unsigned int’ and ‘int’
+    for (; cached <= static_cast<unsigned>(i); ++cached) {
         cache[cached] = cache[cached - 1] + cache[cached - 2];
     }
     return cache[i];
