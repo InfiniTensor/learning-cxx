@@ -1,7 +1,7 @@
 ﻿#include "../exercise.h"
 #include <cstring>
 // READ: 类模板 <https://zh.cppreference.com/w/cpp/language/class_template>
-
+// 类模板（Class Template） 是泛型编程的核心工具。它允许我们编写一个通用的类，而不必为每种数据类型都重写一遍代码。
 template<class T>
 struct Tensor4D {
     unsigned int shape[4];
@@ -10,6 +10,10 @@ struct Tensor4D {
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
+        for (int i = 0; i < 4; i++) {
+            shape[i] = shape_[i];
+            size *= shape[i];
+        }
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -28,9 +32,46 @@ struct Tensor4D {
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
         // TODO: 实现单向广播的加法
+        // 1.预先计算others 的 strides (步长)，用于将 (n,c,h,w) 坐标转换为线性索引
+        // 线性索引 = n * stride_0 + c * stride_1 + h * stride_2 + w * stride_3
+        unsigned int o_stride3=1;
+        unsigned int o_stride2=others.shape[3];
+        unsigned int o_stride1=o_stride2*others.shape[2];
+        unsigned int o_stride0=o_stride1*others.shape[1];
+        //// 使用指针直接遍历 this->data，避免重复计算 this 的线性索引
+        T* current_ptr = this->data;
+        // 4层循环遍历 this 的所有维度
+        for (unsigned int n = 0; n < shape[0]; ++n) {
+            // 如果 others 在该维度长度为1，则索引固定为0（广播），否则跟随 n
+            unsigned int n_idx = (others.shape[0] == 1) ? 0 : n;
+            
+            for (unsigned int c = 0; c < shape[1]; ++c) {
+                unsigned int c_idx = (others.shape[1] == 1) ? 0 : c;
+                
+                for (unsigned int h = 0; h < shape[2]; ++h) {
+                    unsigned int h_idx = (others.shape[2] == 1) ? 0 : h;
+                    
+                    for (unsigned int w = 0; w < shape[3]; ++w) {
+                        unsigned int w_idx = (others.shape[3] == 1) ? 0 : w;
+                        // 计算 others 中的线性偏移量
+                        unsigned int others_offset = 
+                            n_idx * o_stride0 + 
+                            c_idx * o_stride1 + 
+                            h_idx * o_stride2 + 
+                            w_idx * o_stride3;
+                        // 执行加法
+                        *current_ptr += others.data[others_offset];
+                        
+                        // 移动到 this 的下一个元素
+                        ++current_ptr;
+                    }
+                }
+            }
+        }
         return *this;
     }
 };
+
 
 // ---- 不要修改以下代码 ----
 int main(int argc, char **argv) {

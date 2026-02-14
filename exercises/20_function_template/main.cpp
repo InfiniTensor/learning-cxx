@@ -1,8 +1,16 @@
 ﻿#include "../exercise.h"
 
 // READ: 函数模板 <https://zh.cppreference.com/w/cpp/language/function_template>
+// 函数模板--`template<typename T>`,
+// - 函数模板就像是一个“模具”或“蓝图”。
+// - 不需要为 int、float 或 double 分别编写逻辑相同的函数
+// - // T1 和 T2 可以是不同类型`template <typename T1, typename T2>`
 // TODO: 将这个函数模板化
-int plus(int a, int b) {
+// int plus(int a, int b) {
+//     return a + b;
+// }
+template<typename T>
+T plus(T a, T b) {
     return a + b;
 }
 
@@ -14,7 +22,8 @@ int main(int argc, char **argv) {
     ASSERT(plus(1.25f, 2.5f) == 3.75f, "Plus two float");
     ASSERT(plus(1.25, 2.5) == 3.75, "Plus two double");
     // TODO: 修改判断条件使测试通过
-    ASSERT(plus(0.1, 0.2) == 0.3, "How to make this pass?");
+    // 浮点数精度问题，不能直接用 == 判断
+    ASSERT(std::abs(plus(0.1, 0.2) - 0.3) < 1e-9, "How to make this pass?");
 
     return 0;
 }
